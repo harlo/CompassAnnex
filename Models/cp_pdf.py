@@ -2,17 +2,14 @@ import os
 from PyPDF2 import PdfFileReader
 
 from lib.Worker.Models.uv_document import UnveillanceDocument
-from lib.Core.vars import EmitSentinel
 from conf import ANNEX_DIR, DEBUG
 
 class CompassPDF(UnveillanceDocument, PdfFileReader):
 	def __init__(self, _id=None, inflate=None):
-		emit_sentinels = [EmitSentinel("pdf_reader", "PdfFileReader", None)]
+		UnveillanceDocument.__init__(self, _id=_id, inflate=inflate)
 
-		UnveillanceDocument.__init__(self, _id=_id, inflate=inflate, emit_sentinels=emit_sentinels)
-
-	def loadFile(self, asset_path=None):
-		if asset_path is None:
+	def loadFile(self, asset_path):
+		if asset_path == self.file_name:
 			if not self.getFile(self.file_name): return None
 			try:
 				PdfFileReader.__init__(self, file(os.path.join(ANNEX_DIR, self.file_name)))
