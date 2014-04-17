@@ -1,0 +1,13 @@
+{
+	"ASSET_TAGS" : {},
+	"MIME_TYPES" : {},
+	"MIME_TYPE_MAP" : {},
+	"MIME_TYPE_TASKS" : {
+		"application/pdf" : ["PDF.preprocess_nlp.preprocessNLP"]
+	},
+	"METADATA_ASPECTS" : {
+		"PDF" : [
+
+		]
+	}
+}
