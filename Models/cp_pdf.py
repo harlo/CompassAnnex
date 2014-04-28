@@ -4,17 +4,18 @@ from PyPDF2 import PdfFileReader
 from lib.Worker.Models.uv_document import UnveillanceDocument
 from conf import ANNEX_DIR, DEBUG
 
-class CompassPDF(UnveillanceDocument, PdfFileReader):
+class CompassPDF(UnveillanceDocument):
 	def __init__(self, _id=None, inflate=None):
-		UnveillanceDocument.__init__(self, _id=_id, inflate=inflate)
+		super(CompassPDF, self).__init__(_id=_id, inflate=inflate)
 
 	def loadFile(self, asset_path):
 		if asset_path == self.file_name:
 			if not self.getFile(self.file_name): return None
 			try:
-				PdfFileReader.__init__(self, file(os.path.join(ANNEX_DIR, self.file_name)))
-				return True
-			except Exception as e: return None
+				return PdfFileReader(file(os.path.join(ANNEX_DIR, self.file_name)))
+			except Exception as e:
+				if DEBUG: print e
+				return None
 
 		return super(CompassPDF, self).loadFile(asset_path)
 
@@ -26,6 +27,8 @@ class CompassPDF(UnveillanceDocument, PdfFileReader):
 		if hasattr(asset, 'tags') and ASSET_TAGS['AS_PDF'] in asset.tags:
 			try:
 				return PdfFileReader(file(os.path.join(ANNEX_DIR, self.base_path, file_name)))
-			except Exception as e: return None
+			except Exception as e:
+				if DEBUG: print e
+				return None
 
 		return super(CompassPDF, self).loadFile(file_name)
