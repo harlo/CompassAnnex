@@ -13,6 +13,7 @@ else
 	UV_UUID=$4
 fi 
 
+USER_CONFIG=$OLD_DIR/lib/Annex/conf/annex.config.yaml
 cd $OLD_DIR/lib/Annex
 ./setup.sh $OLD_DIR $ANNEX_DIR $ANACONDA_DIR
 
@@ -23,6 +24,17 @@ echo "alias peepdf='python "$OLD_DIR"/lib/Annex/lib/peepdf/peepdf.py'" >> ~/.bas
 echo export UV_SERVER_HOST="'"$UV_SERVER_HOST"'" >> ~/.bashrc
 echo export UV_UUID="'"$UV_UUID"'" >> ~/.bashrc
 source ~/.bashrc
+
+echo "**************************************************"
+echo 'Installing stanford nlp'
+NLP_TAG="stanford-corenlp-full-2014-01-04"
+cd $OLD_DIR/lib/stanford-corenlp
+wget http://nlp.stanford.edu/software/$NLP_TAG.zip
+unzip $NLP_TAG.zip
+
+echo nlp_server.path: $OLD_DIR/lib/stanford-corenlp >> $USER_CONFIG
+echo nlp_server.port: 8887
+echo nlp_server.pkd: $NLP_TAG
 
 echo "**************************************************"
 echo 'Initing git annex on '$ANNEX_DIR'...'
@@ -45,6 +57,9 @@ ls -la
 cd ../Models
 ln -s $OLD_DIR/Models/* .
 ls -la
+
+cd $OLD_DIR
+pip install --upgrade -r requirements.txt
 
 cd $OLD_DIR/lib/Annex
 echo vars_extras: $OLD_DIR/vars.json >> conf/annex.config.yaml

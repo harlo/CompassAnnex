@@ -1,1 +1,3 @@
 PyPDF2
+pexpect
+unidecode
