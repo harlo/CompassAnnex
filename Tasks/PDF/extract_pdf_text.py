@@ -50,10 +50,8 @@ def extractPDFText(task):
 		texts[x] = pdf_reader.getPage(x).extractText()
 		if DEBUG: print "EXTRACTED TEXT from page %d:\n%s" % (x, texts[x])
 
-
-	pdf.addAsset(texts, "doc_texts.json", as_literal=False,
-		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)",
-		tags=[ASSET_TAGS['TXT_JSON']])
+	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
+		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])
 
 	texts_unfinished = [t for t in texts if t[0] is not None]
 	if len(texts_unfinished) == 0:

@@ -10,7 +10,66 @@
 	},
 	"METADATA_ASPECTS" : {
 		"PDF" : [
-
+			{
+				"tag_position" : "^File:\s*(.*)",
+				"label" : "Filename",
+				"type" : "str",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "^SHA1:\s*(\w{40})",
+				"label" : "SHA1",
+				"type" : "str",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "^Size:\s*(\d+)\sbytes",
+				"label" : "File Size", 
+				"type" : "int",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "^Version:\s(.*)",
+				"label" : "Version", 
+				"type" : "str",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "^Info Object in version (\d):",
+				"label" : "Version Available",
+				"type" : "int",
+				"ideal" : null
+			},
+			{
+				"tag_position" :"/Title (.*)", 
+				"label" : "XMP Title",
+				"type" : "str",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "/Creator (.*)", 
+				"label" : "XMP Creator",
+				"type" : "str",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "/ModDate D:(.*)'00'",
+				"label" : "XMP ModDate",
+				"type" : "str",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "/CreationDate(.*)",
+				"label" : "XMP CreationDate", 
+				"type" : "str",
+				"ideal" : null
+			},
+			{
+				"tag_position" : "/Author (.*)",
+				"label" : "XMP Author",
+				"type" : "str",
+				"ideal" : null
+			}
 		]
 	}
 }

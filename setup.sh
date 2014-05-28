@@ -2,9 +2,9 @@ OLD_DIR=`pwd`
 if [ $# -eq 0 ]
 then
 	echo "no initial args"
-	ANNEX_DIR=/home/danse/unveillance_remote
-	ANACONDA_DIR=/home/danse/anaconda
-	UV_SERVER_HOST="10.51.119.238"
+	ANNEX_DIR=/home/ubuntu/unveillance_remote
+	ANACONDA_DIR=/home/ubuntu/anaconda
+	UV_SERVER_HOST="xxxxxxx"
 	UV_UUID="danse-v1"
 else
 	ANNEX_DIR=$1
@@ -46,7 +46,7 @@ chmod +x .git/hooks/post-receive
 
 git annex init "unveillance_remote"
 git annex untrust web
-git checkout -b master
+git annex watch
 
 echo "**************************************************"
 echo "Installing other python dependencies..."
