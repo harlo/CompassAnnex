@@ -6,36 +6,41 @@
 	"MIME_TYPES" : {},
 	"MIME_TYPE_MAP" : {},
 	"MIME_TYPE_TASKS" : {
-		"application/pdf" : ["PDF.split_pdf_pages.splitPDFPages", "PDF.extract_pdf_text.extractPDFText", "Text.preprocess_nlp.preprocessNLP"]
+		"application/pdf" : [
+			"PDF.process_metadata.processPDFMetadata", 
+			"PDF.split_pdf_pages.splitPDFPages", 
+			"PDF.extract_pdf_text.extractPDFText", 
+			"Text.preprocess_nlp.preprocessNLP"
+		]
 	},
 	"METADATA_ASPECTS" : {
 		"PDF" : [
 			{
-				"tag_position" : "^File:\s*(.*)",
+				"tag_position" : "^File:\\s*(.*)",
 				"label" : "Filename",
 				"type" : "str",
 				"ideal" : null
 			},
 			{
-				"tag_position" : "^SHA1:\s*(\w{40})",
+				"tag_position" : "^SHA1:\\s*(\\w{40})",
 				"label" : "SHA1",
 				"type" : "str",
 				"ideal" : null
 			},
 			{
-				"tag_position" : "^Size:\s*(\d+)\sbytes",
+				"tag_position" : "^Size:\\s*(\\d+)\\sbytes",
 				"label" : "File Size", 
 				"type" : "int",
 				"ideal" : null
 			},
 			{
-				"tag_position" : "^Version:\s(.*)",
+				"tag_position" : "^Version:\\s(.*)",
 				"label" : "Version", 
 				"type" : "str",
 				"ideal" : null
 			},
 			{
-				"tag_position" : "^Info Object in version (\d):",
+				"tag_position" : "^Info Object in version (\\d):",
 				"label" : "Version Available",
 				"type" : "int",
 				"ideal" : null

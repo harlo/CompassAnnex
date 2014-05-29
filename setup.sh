@@ -20,7 +20,7 @@ cd $OLD_DIR/lib/Annex
 sudo apt-get install -y subversion
 svn checkout http://peepdf.googlecode.com/svn/trunk/ lib/peepdf
 
-echo "alias peepdf='python "$OLD_DIR"/lib/Annex/lib/peepdf/peepdf.py'" >> ~/.bashrc
+echo compass.peepdf.root: $OLD_DIR/lib/Annex/lib/peepdf/peepdf.py >> $USER_CONFIG
 echo export UV_SERVER_HOST="'"$UV_SERVER_HOST"'" >> ~/.bashrc
 echo export UV_UUID="'"$UV_UUID"'" >> ~/.bashrc
 source ~/.bashrc

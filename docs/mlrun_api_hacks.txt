@@ -1,0 +1,27 @@
+DAEIL API NOTES!
+
+1) create dataset
+
+POST /{username}/upload/info - (302 FOUND) on success
+cookies: session 
+csrf_token (might be a thing?)
+data_name
+data_summary
+
+2) post document
+
+POST /{username}/upload/drop/{dataset id (?)}
+content-disposition: form-data
+name: file
+content-type: { mime type }
+filename: { file name }
+
+3) start preprocessing
+
+GET /{username}/start_preproc/{dataset id (?)}
+RESPONSE: {"data_status" : ("start")}
+
+4) start new experiment on documents
+
+GET /{username}/try_to_start/{dataset id (?)}/{experiment type (?)}
+RESPONSE : {"command" : ("stay")}

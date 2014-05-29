@@ -3,34 +3,47 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def processPDFMetadata(task):
+def processPDFMetadata(uv_task):
 	task_tag = "PDF METADATA EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	print "extracting text from pdf at %s" % task.doc_id
-	task.setStatus(412)
-
+	print "extracting text from pdf at %s" % uv_task.doc_id
+	uv_task.setStatus(412)
+		
 	from lib.Worker.Models.cp_pdf import CompassPDF
 
 	from conf import DEBUG
 	from vars import ASSET_TAGS
 
-	pdf = CompassPDF(_id=task.doc_id)
+	pdf = CompassPDF(_id=uv_task.doc_id)
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	if DEBUG: print uv_task.emit()
+	
+	import os
 	from conf import ANNEX_DIR, getConfig
 	from fabric.api import *
 	
-	peepdf = local("peepdf %s -s %s" % (
-		os.path.join(ANNEX_DIR, pdf.file_name), getConfig('compass.peepdf.batch')))
+	peepdf_raw = local("%s %s -s %s" % (
+		getConfig('compass.peepdf.root'), os.path.join(ANNEX_DIR, pdf.file_name),
+		getConfig('compass.peepdf.batch')), capture=True)
+			
+	if peepdf_raw is None:
+		print "METADATA COULD NOT BE GENERATED"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		return
 	
-	if DEBUG: print peepdf
+	import re
+	peepdf = []
+	for line in peepdf_raw.splitlines():
+		if line != "":
+			peepdf.append(re.compile("\033\[[0-9;]+m").sub("", line))
 	
 	# save to asset, next task: compile metadata
-	md_file = pdf.addAsset(peepdf, "%s.peeped" % pdf.file_name)
-	if md_file is None:
+	md_file = pdf.addAsset("\n".join(peepdf), "%s.peeped" % pdf.file_name)
+	if not md_file:
 		print "METADATA COULD NOT BE ADDED"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
@@ -38,11 +51,11 @@ def processPDFMetadata(task):
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	next_task = UnveillanceTask(inflate={
 		'doc_id' : pdf._id,
-		'md_file' : md_file,
+		'md_file' : "%s.peeped" % pdf.file_name,
 		'md_namespace' : "PDF",
 		'task_path' : "Documents.compile_metadata.compileMetadata",
-		'queue' : task.queue
+		'queue' : uv_task.queue
 	})
 	next_task.run()
-	task.finish()
+	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
