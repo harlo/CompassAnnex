@@ -4,7 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def extractPDFText(task):
-	print "\n\n************** PDF TEXT EXTRACTION [START] ******************\n"
+	task_tag = "PDF TEXT EXTRACTION"
+	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "extracting text from pdf at %s" % task.doc_id
 	task.setStatus(412)
 

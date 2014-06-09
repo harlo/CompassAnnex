@@ -1,16 +1,19 @@
 {
 	"ASSET_TAGS" : {
 		"D_S" : "doc_split",
-		"AS_PDF" : "as_pdf"
+		"AS_PDF" : "as_pdf",
+		"TOKENS_NLP" : "stanford_core_nlp_tokenizer"
 	},
 	"MIME_TYPES" : {},
 	"MIME_TYPE_MAP" : {},
 	"MIME_TYPE_TASKS" : {
 		"application/pdf" : [
 			"PDF.process_metadata.processPDFMetadata", 
-			"PDF.split_pdf_pages.splitPDFPages", 
+			"PDF.split_pdf_pages.splitPDFPages",
+			"PDF.ocr_pdf.OCRPDF", 
 			"PDF.extract_pdf_text.extractPDFText", 
-			"Text.preprocess_nlp.preprocessNLP"
+			"Text.preprocess_nlp.preprocessNLP",
+			"NLP.tokenizer.basicTokenizer"
 		]
 	},
 	"METADATA_ASPECTS" : {

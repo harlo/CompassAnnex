@@ -55,6 +55,7 @@ class CompassNLPServer(object):
 			print "error stopping NLP server\n%s" % e
 	
 	def sendNLPRequest(self, query):
+		
 		if not hasattr(self, "nlp_server"):
 			if DEBUG: print "starting NLP server before requesting"
 			self.startServer()
