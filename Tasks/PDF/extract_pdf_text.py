@@ -56,21 +56,21 @@ def extractPDFText(task):
 
 	try:
 		texts_unfinished = [t for t in texts if t[0] is not None]
-		if len(texts_unfinished) == 0:
-		
-			asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
-				description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", 
-				tags=[ASSET_TAGS['TXT_JSON']])		
+		asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
+			description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", 
+			tags=[ASSET_TAGS['TXT_JSON']])
+		if asset_path is not None: pdf.addFile(asset_path, None, sync=True)
 
-			if not hasattr(task, "no_continue"):
-				from lib.Worker.Models.uv_task import UnveillanceTask
-				next_task = UnveillanceTask(inflate={
-					'task_path' : 'Text.preprocess_nlp.preprocessNLP',
-					'doc_id' : task.doc_id,
-					'queue' : task.queue,
-					'text_file' : asset_path
-				})
-				next_task.run()
+		print asset_path
+		if len(texts_unfinished) == 0 and not hasattr(task, "no_continue"):
+			from lib.Worker.Models.uv_task import UnveillanceTask
+			next_task = UnveillanceTask(inflate={
+				'task_path' : 'Text.preprocess_nlp.preprocessNLP',
+				'doc_id' : task.doc_id,
+				'queue' : task.queue,
+				'text_file' : asset_path
+			})
+			next_task.run()
 	except IndexError as e:
 		print "NO EXTRACTED USABLE TEXT"
 		print "\n\n************** PDF TEXT EXTRACTION [ERROR] ******************\n"
