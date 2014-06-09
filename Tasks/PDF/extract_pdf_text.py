@@ -41,7 +41,11 @@ def extractPDFText(task):
 	if t is None:
 		texts = [None] * total_pages
 	else:
-		texts = loads(t[0])
+		try:
+			texts = loads(t[0])
+		except TypeError as e:
+			texts = [None] * total_pages
+		
 		if hasattr(task, "split_index") : lower_bound = task.split_index
 
 	upper_bound = lower_bound + pdf_reader.getNumPages()
@@ -50,19 +54,27 @@ def extractPDFText(task):
 		texts[x] = pdf_reader.getPage(x).extractText()
 		if DEBUG: print "EXTRACTED TEXT from page %d:\n%s" % (x, texts[x])
 
-	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
-		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])
+	try:
+		texts_unfinished = [t for t in texts if t[0] is not None]
+		if len(texts_unfinished) == 0:
+		
+			asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
+				description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", 
+				tags=[ASSET_TAGS['TXT_JSON']])		
 
-	texts_unfinished = [t for t in texts if t[0] is not None]
-	if len(texts_unfinished) == 0:
-		from lib.Worker.Models.uv_task import UnveillanceTask
-		next_task = UnveillanceTask(inflate={
-			'task_path' : 'Text.preprocess_nlp.preprocessNLP',
-			'doc_id' : task.doc_id,
-			'queue' : task.queue,
-			'text_file' : asset_path
-		})
-		next_task.run()
+			if not hasattr(task, "no_continue"):
+				from lib.Worker.Models.uv_task import UnveillanceTask
+				next_task = UnveillanceTask(inflate={
+					'task_path' : 'Text.preprocess_nlp.preprocessNLP',
+					'doc_id' : task.doc_id,
+					'queue' : task.queue,
+					'text_file' : asset_path
+				})
+				next_task.run()
+	except IndexError as e:
+		print "NO EXTRACTED USABLE TEXT"
+		print "\n\n************** PDF TEXT EXTRACTION [ERROR] ******************\n"
+		return
 
 	task.finish()
 	print "\n\n************** PDF TEXT EXTRACTION [END] ******************\n"
