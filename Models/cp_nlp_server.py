@@ -1,6 +1,6 @@
-import jsonrpclib, os
-from simplejson import loads
+import jsonrpclib, os, json
 from fabric.api import local
+from time import sleep
 
 from lib.Core.Utils.funcs import stopDaemon, startDaemon
 from Utils.funcs import printAsLog
@@ -28,7 +28,7 @@ class CompassNLPServer(object):
 		self.svr_port = getConfig('nlp_server.port')
 		
 		cmd = "python %s -S %s" % (
-			os.path.join(self.svr_path, "corenlp", "corenlp.py"),
+			os.path.join(self.svr_path, "corenlp.py"),
 			os.path.join(self.svr_path, getConfig('nlp_server.pkg')))
 		
 		start_server = local(cmd)
@@ -43,7 +43,7 @@ class CompassNLPServer(object):
 		with open(self.status_file, 'wb+') as status_file: status_file.write("True")
 		while True: sleep(1)
 	
-	def stopServer(self)
+	def stopServer(self):
 		printAsLog("stopping NLP server")
 		
 		stopDaemon(self.pid_file, extra_pids_port=self.svr_port)

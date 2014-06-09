@@ -33,8 +33,8 @@ wget http://nlp.stanford.edu/software/$NLP_TAG.zip
 unzip $NLP_TAG.zip
 
 echo nlp_server.path: $OLD_DIR/lib/stanford-corenlp >> $USER_CONFIG
-echo nlp_server.port: 8887
-echo nlp_server.pkd: $NLP_TAG
+echo nlp_server.port: 8887 >> $USER_CONFIG
+echo nlp_server.pkg: $NLP_TAG >> $USER_CONFIG
 
 echo "**************************************************"
 echo 'Initing git annex on '$ANNEX_DIR'...'

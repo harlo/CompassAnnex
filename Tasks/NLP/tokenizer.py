@@ -20,10 +20,16 @@ def basicTokenizer(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 
+	txt = None
 	if hasattr(task, "txt_file"):
-		txt = doc.loadFile(doc.file_name)
-	else:
 		txt = doc.loadFile(task.txt_file)
+	else:
+		import os
+		try:
+			txt_path = doc.getAssetsByTagName(ASSET_TAGS['TXT_JSON'])[0]['file_name']
+			txt = doc.loadFile(os.path.join(doc.base_path, txt_path))
+		except Exception as e:
+			if DEBUG: print e
 	
 	if txt is None:
 		print "TEXT FILE IS NONE"
