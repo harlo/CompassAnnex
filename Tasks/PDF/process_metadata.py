@@ -43,7 +43,7 @@ def processPDFMetadata(uv_task):
 	
 	# save to asset, next task: compile metadata
 	md_file = pdf.addAsset("\n".join(peepdf), "%s.peeped" % pdf.file_name)
-	if not md_file:
+	if md_file is None or not pdf.addFile(md_file, None, sync=True):
 		print "METADATA COULD NOT BE ADDED"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
