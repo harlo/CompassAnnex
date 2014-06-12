@@ -21,13 +21,15 @@ def basicTokenizer(task):
 		return
 
 	txt = None
+	
+	from json import loads
 	if hasattr(task, "txt_file"):
-		txt = doc.loadFile(task.txt_file)
+		txt = loads(doc.loadFile(task.txt_file))
 	else:
 		import os
 		try:
 			txt_path = doc.getAssetsByTagName(ASSET_TAGS['TXT_JSON'])[0]['file_name']
-			txt = doc.loadFile(os.path.join(doc.base_path, txt_path))
+			txt = loads(doc.loadFile(os.path.join(doc.base_path, txt_path)))
 		except Exception as e:
 			if DEBUG: print e
 	
@@ -40,8 +42,7 @@ def basicTokenizer(task):
 	nlp_server = CompassNLPServer()
 	tokenized = nlp_server.sendNLPRequest({
 		'method' : 'tokenize',
-		'txt' : txt,
-		'blocking' : True 
+		'txt' : txt
 	})
 	
 	if tokenized is None:
@@ -49,7 +50,11 @@ def basicTokenizer(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
-	asset_path = doc.addAsset(tokenized, "tokenized.xml",
+	if DEBUG:
+		print "here is res"
+		print type(tokenized)
+		
+	asset_path = doc.addAsset(tokenized, "core_nlp_tokenized.json", as_literal=False,
 		description="tokenized output from Stanford Core NLP",
 		tags=[ASSET_TAGS['TOKENS_NLP']])
 

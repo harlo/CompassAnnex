@@ -1,4 +1,4 @@
-import jsonrpclib, os, json, threading
+import jsonrpclib, os, json, threading, requests
 from time import sleep
 from multiprocessing import Process
 from lib.Core.Utils.funcs import stopDaemon, startDaemon
@@ -11,7 +11,6 @@ class CompassNLPServer(object):
 		
 		self.pid_file = os.path.join(MONITOR_ROOT, "nlp_svr.pid.txt")
 		self.log_file = os.path.join(MONITOR_ROOT, "nlp_svr.log.txt")
-		self.status_file = os.path.join(MONITOR_ROOT, "nlp_svr.status.txt")
 		
 		if not self.getStatus():
 			p = Process(target=self.startServer)
@@ -19,71 +18,57 @@ class CompassNLPServer(object):
 	
 	def getStatus(self):
 		try:
-			with open(self.status_file, 'rb') as SF: return bool(SF.read().strip())
-		except IOError as e:
-			if DEBUG: print e
+			server_port = getConfig('nlp_server.port')
+			r = requests.get("http://localhost:%d" % server_port)
+			if r.status_code == 501:
+				self.nlp_server = jsonrpclib.Server("http://localhost:%d" % server_port)
+				return True
+		except IOError as e: pass
 		
 		return False
 			
 	def startServer(self):
 		from fabric.api import local
 		
-		self.svr_path = getConfig('nlp_server.path')
-		self.svr_port = getConfig('nlp_server.port')
+		server_path = getConfig('nlp_server.path')
 		
 		cmd = "python %s -S %s -p %d" % (
-			os.path.join(self.svr_path, "corenlp", "corenlp.py"),
-			os.path.join(self.svr_path, getConfig('nlp_server.pkg')),
+			os.path.join(server_path, "corenlp", "corenlp.py"),
+			os.path.join(server_path, getConfig('nlp_server.pkg')),
 			getConfig('nlp_server.port'))
 		
-		start_server = local(cmd)
-
 		if DEBUG: 
+			print "STARTING NLP SERVER:"
 			print cmd
-			print "STARTING NLP SERVER:\n%s" % start_server
 		
-		self.nlp_server = jsonrpclib.Server("http://localhost:%d" % self.svr_port)
-		
-		startDaemon(self.log_file, self.pid_file)
-		with open(self.status_file, 'wb+') as status_file: status_file.write("True")
-		while True: sleep(1)
+		start_cmd = local(cmd)
 	
 	def stopServer(self):
 		printAsLog("stopping NLP server")
-		
-		stopDaemon(self.pid_file, extra_pids_port=self.svr_port)
-		with open(self.status_file, 'wb+') as status_file: status_file.write("False")
+		stopDaemon(self.pid_file, extra_pids_port=getConfig('nlp_server.port'))
 		
 		try:
 			del self.nlp_server
 		except Exception as e:
 			print "error stopping NLP server\n%s" % e
 	
-	class NLPRequest(threading.Thread):
-		def __init__(self, server, texts, blocking=False):
-			self.blocking = blocking
-			self.server = server
-			self.texts = texts
+	def tokenize(self, texts):
+		if type(texts) is not list: texts = [texts]
 		
-		def getResult(self): pass
-	
-	class Tokenizer(NLPRequest):
-		def __init__(self, texts):
-			super(Tokenier, self).__init__(texts, blocking=True)
-		
-		def run(self):
-			print "DOING TOKENIZER"
-			if type(texts) is not list: texts = [texts]
-			for text in texts: self.server.send(text)
-		
-		def getResult(self):
+		tokenized = []
+		for text in texts: 
+			printAsLog("Attempting to tokenize:\n%s..." % text[:135])
+
 			try:
-				return self.server.getAll()
+				parse = self.nlp_server.parse(text)
+				print type(parse)
+				tokenized.append(json.loads(parse))
 			except Exception as e:
-				if DEBUG:
-					print "I HAVE NO CLUE ABOUT THIS SERVER"
-			
-			return None
+				if DEBUG: print e
+				continue
+		
+		if len(tokenized) > 0: return tokenized
+		return None
 	
 	def sendNLPRequest(self, query):
 		if not self.getStatus():
@@ -105,7 +90,14 @@ class CompassNLPServer(object):
 			if DEBUG: print "no method or text.  nothing to do"
 			return None
 		
-		if query['method'] == "tokenize": return self.Tokenizer(self.nlp_server, txt)
+		try:
+			print "sending text:"
+			print type(query['txt'])
+			
+			if query['method'] == "tokenize":
+				return self.tokenize(query['txt'])
+				
+		except AttributeError as e: pass
 		
 		return None
 			
