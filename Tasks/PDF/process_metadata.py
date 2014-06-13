@@ -54,7 +54,8 @@ def processPDFMetadata(uv_task):
 		'md_file' : "%s.peeped" % pdf.file_name,
 		'md_namespace' : "PDF",
 		'task_path' : "Documents.compile_metadata.compileMetadata",
-		'queue' : uv_task.queue
+		'queue' : uv_task.queue,
+		'next_task_path' : "PDF.extract_pdf_text.extractPDFText"
 	})
 	next_task.run()
 	uv_task.finish()
