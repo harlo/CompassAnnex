@@ -29,18 +29,21 @@ if __name__ == "__main__":
 	
 	if type(config['nlp_port']) is not int:
 		config['nlp_port'] = 8887
-		
-	os.chdir(os.path.join("lib", "stanford-corenlp"))
-	with settings(warn_only=True):
-		local("wget http://nlp.stanford.edu/software/%s.zip" % config['nlp_pkg'])
-		local("unzip %s.zip" % config['nlp_pkg'])
-	os.chdir(base_dir)
+
+	if not os.path.exists(os.path.join("lib","stanford-corenlp", config['nlp_pkg'])):
+		os.chdir(os.path.join("lib", "stanford-corenlp"))
+		with settings(warn_only=True):
+			local("wget http://nlp.stanford.edu/software/%s.zip" % config['nlp_pkg'])
+			local("unzip %s.zip" % config['nlp_pkg'])
+		os.chdir(base_dir)
+	else:
+		print "Stanford NLP Package %s already downloaded. skipping..." % config['nlp_pkg']
 	
 	with open(os.path.join(base_dir, "lib", "peepdf", "batch.txt"), 'wb+') as BATCH:
 		BATCH.write("info\nmetadata\ntree\n")
 	
 	with open(os.path.join(conf_dir, "annex.config.yaml"), 'ab') as CONF:
-		CONFIG.write("vars_extras: %s\n" % os.path.join(base_dir, "vars.json"))
+		CONF.write("vars_extras: %s\n" % os.path.join(base_dir, "vars.json"))
 		CONF.write("nlp_server.path: %s\n" % os.path.join(
 			base_dir, "lib", "starnford-corenlp"))
 		CONF.write("nlp_server.port: %d\n" % config['nlp_port'])
