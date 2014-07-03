@@ -53,29 +53,29 @@ def extractPDFText(task):
 	
 	for x in xrange(lower_bound, upper_bound):
 		texts[x] = pdf_reader.getPage(x).extractText()
-		if DEBUG: print "EXTRACTED TEXT from page %d:\n%s" % (x, texts[x])
+		if DEBUG: print "EXTRACTED TEXT from page %d of %d:\n%s" % (x, upper_bound, texts[x])
+	
+	pdf.searchable_texts = texts
+	pdf.save()
+	
+	if DEBUG: print "I JUST SAVED THE PDF TEXTS (%d)" % len(pdf.searchable_texts)
+	
+	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
+		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])
 
-	try:
-		texts_unfinished = [t for t in texts if t[0] is not None]
-		asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
-			description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", 
-			tags=[ASSET_TAGS['TXT_JSON']])
-		if asset_path is not None: pdf.addFile(asset_path, None, sync=True)
+	if asset_path is not None: pdf.addFile(asset_path, None, sync=True)
 
-		print asset_path
-		if len(texts_unfinished) == 0 and not hasattr(task, "no_continue"):
-			from lib.Worker.Models.uv_task import UnveillanceTask
-			next_task = UnveillanceTask(inflate={
-				'task_path' : 'Text.preprocess_nlp.preprocessNLP',
-				'doc_id' : task.doc_id,
-				'queue' : task.queue,
-				'text_file' : asset_path
-			})
-			next_task.run()
-	except IndexError as e:
-		print "NO EXTRACTED USABLE TEXT"
-		print "\n\n************** PDF TEXT EXTRACTION [ERROR] ******************\n"
-		return
-
+	if not hasattr(task, "no_continue"):
+		from lib.Worker.Models.uv_task import UnveillanceTask
+		next_task = UnveillanceTask(inflate={
+			'task_path' : 'Text.preprocess_nlp.preprocessNLP',
+			'doc_id' : task.doc_id,
+			'queue' : task.queue,
+			'text_file' : asset_path
+		})
+		next_task.run()
+	
+	if DEBUG: print "WHERE ARE THE FUCKING S TEXTS? %d" % len(pdf.searchable_texts)
+	
 	task.finish()
 	print "\n\n************** PDF TEXT EXTRACTION [END] ******************\n"

@@ -1,66 +1,40 @@
-OLD_DIR=`pwd`
+#! /bin/bash
+THIS_DIR=`pwd`
+
 if [ $# -eq 0 ]
 then
-	echo "no initial args"
-	ANNEX_DIR=/home/ubuntu/unveillance_remote
-	ANACONDA_DIR=/home/ubuntu/anaconda
-	UV_SERVER_HOST="xxxxxxx"
-	UV_UUID="danse-v1"
+	WITH_CONFIG=None
 else
-	ANNEX_DIR=$1
-	ANACONDA_DIR=$2
-	UV_SERVER_HOST=$3
-	UV_UUID=$4
-fi 
+	WITH_CONFIG=$1
+fi
 
-USER_CONFIG=$OLD_DIR/lib/Annex/conf/annex.config.yaml
-cd $OLD_DIR/lib/Annex
-./setup.sh $OLD_DIR $ANNEX_DIR $ANACONDA_DIR
+cd lib/Annex
+./setup.sh $WITH_CONFIG
+source ~/.bashrc
+sleep 2
 
+cd $THIS_DIR
+
+echo "**************************************************"
+echo 'Installing peepdf'
 sudo apt-get install -y subversion
 svn checkout http://peepdf.googlecode.com/svn/trunk/ lib/peepdf
 
-echo compass.peepdf.root: $OLD_DIR/lib/Annex/lib/peepdf/peepdf.py >> $USER_CONFIG
-echo export UV_SERVER_HOST="'"$UV_SERVER_HOST"'" >> ~/.bashrc
-echo export UV_UUID="'"$UV_UUID"'" >> ~/.bashrc
-source ~/.bashrc
-
-echo "**************************************************"
-echo 'Installing stanford nlp'
-NLP_TAG="stanford-corenlp-full-2014-01-04"
-cd $OLD_DIR/lib/stanford-corenlp
-wget http://nlp.stanford.edu/software/$NLP_TAG.zip
-unzip $NLP_TAG.zip
-
-echo nlp_server.path: $OLD_DIR/lib/stanford-corenlp >> $USER_CONFIG
-echo nlp_server.port: 8887 >> $USER_CONFIG
-echo nlp_server.pkg: $NLP_TAG >> $USER_CONFIG
-
-echo "**************************************************"
-echo 'Initing git annex on '$ANNEX_DIR'...'
-cd $ANNEX_DIR
-git init
-mkdir .git/hooks
-cp $OLD_DIR/lib/Annex/post-receive .git/hooks
-chmod +x .git/hooks/post-receive
-
-git annex init "unveillance_remote"
-git annex untrust web
-git annex watch
+python setup.py
 
 echo "**************************************************"
 echo "Installing other python dependencies..."
-cd $OLD_DIR/lib/Annex/lib/Worker/Tasks
-ln -s $OLD_DIR/Tasks/* .
+cd $THIS_DIR/lib/Annex/lib/Worker/Tasks
+ln -s $THIS_DIR/Tasks/* .
 ls -la
 
 cd ../Models
-ln -s $OLD_DIR/Models/* .
+ln -s $THIS_DIR/Models/* .
 ls -la
 
-cd $OLD_DIR
+cd $THIS_DIR
 pip install --upgrade -r requirements.txt
 
-cd $OLD_DIR/lib/Annex
-echo vars_extras: $OLD_DIR/vars.json >> conf/annex.config.yaml
+cd lib/Annex
+chmod 0400 conf/*
 python unveillance_annex.py -firstuse

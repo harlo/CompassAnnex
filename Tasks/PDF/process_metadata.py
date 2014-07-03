@@ -24,11 +24,12 @@ def processPDFMetadata(uv_task):
 	
 	import os
 	from conf import ANNEX_DIR, getConfig
-	from fabric.api import *
+	from fabric.api import local, settings
 	
-	peepdf_raw = local("%s %s -s %s" % (
-		getConfig('compass.peepdf.root'), os.path.join(ANNEX_DIR, pdf.file_name),
-		getConfig('compass.peepdf.batch')), capture=True)
+	with settings(warn_only=True):
+		peepdf_raw = local("%s %s -s %s" % (
+			getConfig('compass.peepdf.root'), os.path.join(ANNEX_DIR, pdf.file_name),
+			getConfig('compass.peepdf.batch')), capture=True)
 			
 	if peepdf_raw is None:
 		print "METADATA COULD NOT BE GENERATED"
