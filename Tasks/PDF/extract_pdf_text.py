@@ -55,7 +55,13 @@ def extractPDFText(task):
 		texts[x] = pdf_reader.getPage(x).extractText()
 		if DEBUG: print "EXTRACTED TEXT from page %d of %d:\n%s" % (x, upper_bound, texts[x])
 	
-	pdf.searchable_texts = texts
+	if hasattr(pdf, "searchable_text"):
+		if type(pdf.searchable_text) is not list:
+			pdf.searchable_text = [pdf.searchable_text]
+		pdf.searchable_text.extend(texts)
+	else:
+		pdf.searchable_texts = texts
+	
 	pdf.save()
 	
 	if DEBUG: print "I JUST SAVED THE PDF TEXTS (%d)" % len(pdf.searchable_texts)
