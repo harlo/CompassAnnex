@@ -15,15 +15,13 @@ sleep 2
 
 cd $THIS_DIR
 
-echo "**************************************************"
-echo 'Installing peepdf'
+pip install --upgrade fabric
+
 sudo apt-get install -y subversion
 svn checkout http://peepdf.googlecode.com/svn/trunk/ lib/peepdf
 
 python setup.py
 
-echo "**************************************************"
-echo "Installing other python dependencies..."
 cd $THIS_DIR/lib/Annex/lib/Worker/Tasks
 ln -s $THIS_DIR/Tasks/* .
 ls -la
