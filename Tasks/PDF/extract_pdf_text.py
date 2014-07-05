@@ -30,7 +30,6 @@ def extractPDFText(task):
 	if hasattr(task, "split_file"):
 		pdf_reader = pdf.loadAsset(task.split_file)
 		
-
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
 		print "\n\n************** PDF TEXT EXTRACTION [ERROR] ******************\n"
@@ -55,21 +54,20 @@ def extractPDFText(task):
 		texts[x] = pdf_reader.getPage(x).extractText()
 		if DEBUG: print "EXTRACTED TEXT from page %d of %d:\n%s" % (x, upper_bound, texts[x])
 	
-	if hasattr(pdf, "searchable_text"):
-		if type(pdf.searchable_text) is not list:
-			pdf.searchable_text = [pdf.searchable_text]
-		pdf.searchable_text.extend(texts)
-	else:
-		pdf.searchable_texts = texts
-	
-	pdf.save()
-	
-	if DEBUG: print "I JUST SAVED THE PDF TEXTS (%d)" % len(pdf.searchable_texts)
-	
 	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
 		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])
 
-	if asset_path is not None: pdf.addFile(asset_path, None, sync=True)
+	if asset_path is not None: 
+		pdf.addFile(asset_path, None, sync=True)
+		from lib.Worker.Models.uv_text import UnveillanceText
+		uv_text = UnveillanceText(inflate={
+			'media_id' : pdf._id,
+			'searchable_text' : texts,
+			'file_name' : asset_path
+		})
+
+		pdf.text_id = uv_text._id
+		pdf.save()
 
 	if not hasattr(task, "no_continue"):
 		from lib.Worker.Models.uv_task import UnveillanceTask
