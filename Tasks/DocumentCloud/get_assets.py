@@ -49,7 +49,7 @@ def getAssets(uv_task):
 	else:
 		entity_asset = document.addAsset(dc_entities, "document_cloud_entities.json",
 			as_literal=False, description="entites pulled from DocumentCloud",
-			tags=[ASSET_TAGS['DOC_CLOUD_ENTITES'], ASSET_TAGS['DOC_CLOUD_DOC']])
+			tags=[ASSET_TAGS['DOC_CLOUD_ENTITIES'], ASSET_TAGS['DOC_CLOUD_DOC']])
 		
 		from lib.Worker.Models.uv_text import UnveillanceText
 		

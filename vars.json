@@ -2,7 +2,10 @@
 	"ASSET_TAGS" : {
 		"D_S" : "doc_split",
 		"AS_PDF" : "as_pdf",
-		"TOKENS_NLP" : "stanford_core_nlp_tokenizer"
+		"TOKENS_NLP" : "stanford_core_nlp_tokenizer",
+		"DOC_CLOUD_ENTITIES" : "document_cloud_entities",
+		"DOC_CLOUD_MANIFEST" : "document_cloud_manifest",
+		"DOC_CLOUD_DOC" : "document_cloud_document"
 	},
 	"MIME_TYPES" : {},
 	"MIME_TYPE_MAP" : {},
