@@ -1,6 +1,6 @@
 import requests, json
 
-from conf import DEBUG, getSecrets, getConfig
+from conf import DEBUG, getConfig
 
 class CompassDocumentCloudClient(object):
 	def __init__(self, auth_str=None):
@@ -37,7 +37,7 @@ class CompassDocumentCloudClient(object):
 		url = "upload.json"
 		try:
 			data = {
-				'file' : document.getFile(),
+				'file' : document.loadFile(document.file_name),
 				'title' : document.file_name,
 				'project' : self.project_id,
 				'access' : "private",
