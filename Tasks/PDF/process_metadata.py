@@ -19,9 +19,7 @@ def processPDFMetadata(uv_task):
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
-	
-	if DEBUG: print uv_task.emit()
-	
+		
 	import os
 	from conf import ANNEX_DIR, getConfig
 	from fabric.api import local, settings
@@ -48,6 +46,8 @@ def processPDFMetadata(uv_task):
 		print "METADATA COULD NOT BE ADDED"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
+	
+	pdf.addCompletedTask(uv_task.task_path)
 	
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	next_task = UnveillanceTask(inflate={

@@ -73,9 +73,11 @@ def splitPDFPages(task):
 						'split_file' : "doc_split_%d.pdf" % done,
 						'split_index' : done
 					})
+					
 					new_task = UnveillanceTask(inflate=doc_split_task)
 					new_task.run()
 	else:
+		pdf.addCompletedTask(task.task_path)
 		new_task = UnveillanceTask(inflate=deepcopy(next_task))
 		new_task.run()
 

@@ -69,6 +69,8 @@ def extractPDFText(task):
 		pdf.text_id = uv_text._id
 		pdf.save()
 
+	pdf.addCompletedTask(task.task_path)
+	
 	if not hasattr(task, "no_continue"):
 		from lib.Worker.Models.uv_task import UnveillanceTask
 		next_task = UnveillanceTask(inflate={

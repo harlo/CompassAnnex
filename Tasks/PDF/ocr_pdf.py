@@ -48,5 +48,6 @@ def OCRPDF(task):
 		tags=[ASSET_TAGS['TXT_OCR']])
 	if asset_path is not None: pdf.addFile(asset_path, None, sync=True)
 	
+	pdf.addCompletedTask(task.task_path)
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

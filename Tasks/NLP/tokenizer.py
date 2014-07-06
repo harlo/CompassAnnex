@@ -63,5 +63,6 @@ def basicTokenizer(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 	
+	doc.addCompletedTask(task.task_path)
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

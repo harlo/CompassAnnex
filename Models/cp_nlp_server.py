@@ -28,7 +28,7 @@ class CompassNLPServer(object):
 		return False
 			
 	def startServer(self):
-		from fabric.api import local
+		from fabric.api import local, settings
 		
 		server_path = getConfig('nlp_server.path')
 		
@@ -41,7 +41,8 @@ class CompassNLPServer(object):
 			print "STARTING NLP SERVER:"
 			print cmd
 		
-		start_cmd = local(cmd)
+		with settings(warn_only=True):
+			start_cmd = local(cmd)
 	
 	def stopServer(self):
 		printAsLog("stopping NLP server")

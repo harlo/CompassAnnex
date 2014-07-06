@@ -52,5 +52,6 @@ if __name__ == "__main__":
 			base_dir, "lib", "peepdf", "peepdf.py"))
 		CONF.write("compass.peepdf.batch: %s\n" % os.path.join(
 			base_dir, "lib", "peepdf", "batch.txt"))
+		CONF.write("documentcloud.proj_title: Compass v1\n")
 	
 	exit(0)
