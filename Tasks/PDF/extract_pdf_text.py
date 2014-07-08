@@ -4,7 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def extractPDFText(task):
-	print "\n\n************** PDF TEXT EXTRACTION [START] ******************\n"
+	task_tag = "PDF TEXT EXTRACTION"
+	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "extracting text from pdf at %s" % task.doc_id
 	task.setStatus(412)
 
@@ -29,7 +30,6 @@ def extractPDFText(task):
 	if hasattr(task, "split_file"):
 		pdf_reader = pdf.loadAsset(task.split_file)
 		
-
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
 		print "\n\n************** PDF TEXT EXTRACTION [ERROR] ******************\n"
@@ -41,22 +41,37 @@ def extractPDFText(task):
 	if t is None:
 		texts = [None] * total_pages
 	else:
-		texts = loads(t[0])
+		try:
+			texts = loads(t[0])
+		except TypeError as e:
+			texts = [None] * total_pages
+		
 		if hasattr(task, "split_index") : lower_bound = task.split_index
 
 	upper_bound = lower_bound + pdf_reader.getNumPages()
 	
 	for x in xrange(lower_bound, upper_bound):
 		texts[x] = pdf_reader.getPage(x).extractText()
-		if DEBUG: print "EXTRACTED TEXT from page %d:\n%s" % (x, texts[x])
+		if DEBUG: print "EXTRACTED TEXT from page %d of %d:\n%s" % (x, upper_bound, texts[x])
+	
+	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
+		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])
 
+	if asset_path is not None: 
+		pdf.addFile(asset_path, None, sync=True)
+		from lib.Worker.Models.uv_text import UnveillanceText
+		uv_text = UnveillanceText(inflate={
+			'media_id' : pdf._id,
+			'searchable_text' : texts,
+			'file_name' : asset_path
+		})
 
-	pdf.addAsset(texts, "doc_texts.json", as_literal=False,
-		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)",
-		tags=[ASSET_TAGS['TXT_JSON']])
+		pdf.text_id = uv_text._id
+		pdf.save()
 
-	texts_unfinished = [t for t in texts if t[0] is not None]
-	if len(texts_unfinished) == 0:
+	pdf.addCompletedTask(task.task_path)
+	
+	if not hasattr(task, "no_continue"):
 		from lib.Worker.Models.uv_task import UnveillanceTask
 		next_task = UnveillanceTask(inflate={
 			'task_path' : 'Text.preprocess_nlp.preprocessNLP',
@@ -65,6 +80,8 @@ def extractPDFText(task):
 			'text_file' : asset_path
 		})
 		next_task.run()
-
+	
+	if DEBUG: print "WHERE ARE THE FUCKING S TEXTS? %d" % len(pdf.searchable_texts)
+	
 	task.finish()
 	print "\n\n************** PDF TEXT EXTRACTION [END] ******************\n"
