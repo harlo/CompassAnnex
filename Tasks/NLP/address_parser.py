@@ -25,8 +25,9 @@ def addressParser(task):
 		txt = doc.loadFile(task.txt_file)
 	else:
 		import os
+		
 		try:
-			txt_path = doc.getAssetsByTagName(ASSET_TAGS['TXT_JSON'])[0]['file_name']
+			txt_path = doc.getAssetsByTagName(ASSET_TAGS['TXT_JSON'])[0]['file_name']			
 			txt = doc.loadFile(os.path.join(doc.base_path, txt_path))
 		except Exception as e:
 			if DEBUG: print e
@@ -319,10 +320,9 @@ def addressParser(task):
 		)?
 		""" % {'STREET_NAME_CAPTURE': STREET_NAME_CAPTURE, 'STREET_NAME_NOCAPTURE': STREET_NAME_NOCAPTURE})
 	
-	
 	addresses = parse_addresses(txt, ADDRESSES_RE)
 	
-	if addresses is None:
+	if addresses is None or len(addresses) == 0:
 		print "COULD NOT EXTRACT ADDRESSES."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
