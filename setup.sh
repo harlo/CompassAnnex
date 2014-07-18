@@ -10,7 +10,7 @@ fi
 
 cd lib/Annex
 ./setup.sh $WITH_CONFIG
-source ~/.bashrc
+source ~/.bash_profile
 sleep 2
 
 cd $THIS_DIR
