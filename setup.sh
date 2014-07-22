@@ -12,6 +12,7 @@ fi
 cd lib/Annex
 ./setup.sh $WITH_CONFIG
 source ~/.bash_profile
+echo $PATH
 sleep 2
 
 cd $THIS_DIR
