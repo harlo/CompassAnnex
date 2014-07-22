@@ -3,7 +3,8 @@ THIS_DIR=`pwd`
 
 if [ $# -eq 0 ]
 then
-	WITH_CONFIG=None
+	echo "{}" > $THIS_DIR/lib/Annex/conf/compass.secrets.json
+	WITH_CONFIG=$THIS_DIR/lib/Annex/conf/compass.secrets.json
 else
 	WITH_CONFIG=$1
 fi
