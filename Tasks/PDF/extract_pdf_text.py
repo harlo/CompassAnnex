@@ -52,7 +52,6 @@ def extractPDFText(task):
 	
 	for x in xrange(lower_bound, upper_bound):
 		texts[x] = pdf_reader.getPage(x).extractText()
-		if DEBUG: print "EXTRACTED TEXT from page %d of %d:\n%s" % (x, upper_bound, texts[x])
 	
 	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
 		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])
@@ -80,8 +79,6 @@ def extractPDFText(task):
 			'text_file' : asset_path
 		})
 		next_task.run()
-	
-	if DEBUG: print "WHERE ARE THE FUCKING S TEXTS? %d" % len(pdf.searchable_texts)
-	
+		
 	task.finish()
 	print "\n\n************** PDF TEXT EXTRACTION [END] ******************\n"

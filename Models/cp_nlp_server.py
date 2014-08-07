@@ -43,6 +43,11 @@ class CompassNLPServer(object):
 		
 		with settings(warn_only=True):
 			start_cmd = local(cmd)
+		
+		print start_cmd
+		
+		startDaemon(self.log_file, self.pid_file)
+		while True: sleep(1)
 	
 	def stopServer(self):
 		printAsLog("stopping NLP server")
