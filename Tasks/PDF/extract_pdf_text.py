@@ -59,7 +59,6 @@ def extractPDFText(task):
 	if asset_path is not None: 
 		pdf.addFile(asset_path, None, sync=True)
 		
-		'''
 		from lib.Worker.Models.uv_text import UnveillanceText
 		uv_text = UnveillanceText(inflate={
 			'media_id' : pdf._id,
@@ -69,7 +68,6 @@ def extractPDFText(task):
 
 		pdf.text_id = uv_text._id
 		pdf.save()
-		'''
 
 	pdf.addCompletedTask(task.task_path)
 	
