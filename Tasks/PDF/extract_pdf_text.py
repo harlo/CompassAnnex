@@ -70,19 +70,6 @@ def extractPDFText(task):
 		pdf.save()
 
 	pdf.addCompletedTask(task.task_path)
-	
-	if not hasattr(task, "no_continue"):
-		from lib.Worker.Models.uv_task import UnveillanceTask
-		next_task = UnveillanceTask(inflate={
-			'task_path' : 'Text.preprocess_nlp.preprocessNLP',
-			'doc_id' : task.doc_id,
-			'queue' : task.queue,
-			'text_file' : asset_path,
-			'task_queue' : [
-				"NLP.address_parser.addressParser",
-				"NLP.tokenizer.basicTokenizer"]
-		})
-		next_task.run()
-		
+	task.routeNext(inflate={ 'text_file' : asset_path })
 	task.finish()
 	print "\n\n************** PDF TEXT EXTRACTION [END] ******************\n"

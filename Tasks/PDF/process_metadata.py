@@ -48,16 +48,10 @@ def processPDFMetadata(uv_task):
 		return
 	
 	pdf.addCompletedTask(uv_task.task_path)
-	
-	from lib.Worker.Models.uv_task import UnveillanceTask
-	next_task = UnveillanceTask(inflate={
-		'doc_id' : pdf._id,
+	uv_task.routeNext(inflate={
 		'md_file' : "%s.peeped" % pdf.file_name,
-		'md_namespace' : "PDF",
-		'task_path' : "Documents.compile_metadata.compileMetadata",
-		'queue' : uv_task.queue,
-		'next_task_path' : "PDF.extract_pdf_text.extractPDFText"
+		'md_namespace' : "PDF"
 	})
-	next_task.run()
+	
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

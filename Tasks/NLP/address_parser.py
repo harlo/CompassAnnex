@@ -340,6 +340,7 @@ def addressParser(task):
 		return
 	
 	doc.addCompletedTask(task.task_path)
+	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
 

@@ -28,12 +28,6 @@ def splitPDFPages(task):
 
 	MAX_PAGES = 200
 
-	next_task = {
-		'task_path' : MIME_TYPE_TASKS['application/pdf'][1],
-		'doc_id' : task.doc_id,
-		'queue' : task.queue
-	}
-
 	pdf_reader = pdf.loadFile(pdf.file_name)
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
@@ -67,20 +61,14 @@ def splitPDFPages(task):
 
 				if pdf.addAsset(new_pdf.getvalue(), "doc_split_%d.pdf" % done,
 					tags=[ASSET_TAGS['D_S'], ASSET_TAGS['AS_PDF']], description="Chunk %d of original document" % done):
-					
-					doc_split_task = deepcopy(next_task)
-					doc_split_task.update({
+										
+					task.routeNext(inflate={
 						'split_file' : "doc_split_%d.pdf" % done,
 						'split_index' : done
 					})
-					
-					new_task = UnveillanceTask(inflate=doc_split_task)
-					new_task.run()
 	else:
 		pdf.addCompletedTask(task.task_path)
-		new_task = UnveillanceTask(inflate=deepcopy(next_task))
-		new_task.run()
-
+		task.routeNext()
 
 	task.finish()
 	print "\n\n************** SPLITTING PDF PAGES [END] ******************\n"
