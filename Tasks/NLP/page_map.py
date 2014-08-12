@@ -69,6 +69,8 @@ def generatePageMap(uv_task):
 	use_words = [w for w in setdiff1d(bow, stopwords).tolist() if len(w) > 1]	
 	print "SIFTING BAG OF WORDS (old len: %d, new len: %d)" % (len(bow), len(use_words))
 	
+	global_info = {}
+
 	for i, p in enumerate(pages):
 		page_bow = p.lower().split(" ")
 		words = intersect1d(use_words, page_bow).tolist()
@@ -76,13 +78,19 @@ def generatePageMap(uv_task):
 		
 		map = []
 		for word in words:
-			map.append({ 'word' : word, 'count' : page_bow.count(word) })
+			word_info = { 'word' : word, 'count' : page_bow.count(word) }
+			map.append(word_info)
+
+			if word not in global_info.keys():
+				global_info[word] = 0
+
+			global_info[word] += word_info['count']
 		
 		page_map.append({ 'index' : i, 'map' : map })
 	
 	if len(page_map) > 0:
-		print page_map
-		asset_path = doc.addAsset(page_map, "page_map.json", as_literal=False,
+		global_info['uv_page_map'] = page_map
+		asset_path = doc.addAsset(global_info, "page_map.json", as_literal=False,
 			description="word frequencies, page-by-page", tags=[ASSET_TAGS['PAGE_MAP']])
 		
 		print asset_path
