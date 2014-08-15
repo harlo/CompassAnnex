@@ -17,7 +17,7 @@ def extractPDFText(task):
 	pdf = CompassPDF(_id=task.doc_id)
 	if pdf is None:
 		print "PDF IS NONE"
-		print "\n\n************** PDF TEXT EXTRACTION [ERROR] ******************\n"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 
 	"""
@@ -25,33 +25,23 @@ def extractPDFText(task):
 		if so, that should be set in the task's properties.
 		
 	"""
-	pdf_reader = pdf.loadFile(pdf.file_name)
-	total_pages = pdf_reader.getNumPages()
-	if hasattr(task, "split_file"):
-		pdf_reader = pdf.loadAsset(task.split_file)
-		
-	if pdf_reader is None:
-		print "PDF READER IS NONE"
-		print "\n\n************** PDF TEXT EXTRACTION [ERROR] ******************\n"
-		return
-
-	from json import loads
-	lower_bound = 0
-	t = pdf.getAsset("doc_texts.json")
-	if t is None:
-		texts = [None] * total_pages
-	else:
-		try:
-			texts = loads(t[0])
-		except TypeError as e:
-			texts = [None] * total_pages
-		
-		if hasattr(task, "split_index") : lower_bound = task.split_index
-
-	upper_bound = lower_bound + pdf_reader.getNumPages()
+	texts = [None] * pdf.total_pages
 	
-	for x in xrange(lower_bound, upper_bound):
-		texts[x] = pdf_reader.getPage(x).extractText()
+	if pdf.hasParts():
+		extractors = pdf.getParts()
+	else:
+		extractors = [pdf.file_name]
+	
+	count = 0
+	for e in extractors:
+		if e == pdf.file_name:
+			pdf_reader = pdf.loadFile(e)
+		else:
+			pdf_reader = pdf.loadAsset(e)
+
+		for x in xrange(0, pdf_reader.getNumPages()):
+			texts[count] = pdf_reader.getPage(x).extractText()
+			count += 1
 	
 	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
 		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])

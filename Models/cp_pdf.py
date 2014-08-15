@@ -3,10 +3,23 @@ from PyPDF2 import PdfFileReader
 
 from lib.Worker.Models.uv_document import UnveillanceDocument
 from conf import ANNEX_DIR, DEBUG
+from vars import ASSET_TAGS
 
 class CompassPDF(UnveillanceDocument):
 	def __init__(self, _id=None, inflate=None):
 		super(CompassPDF, self).__init__(_id=_id, inflate=inflate)
+
+	def hasParts(self):
+		if self.getAssetsByTagName(ASSET_TAGS['AS_PDF']) is not None:
+			return True
+
+		return False
+
+	def getParts(self):
+		if self.hasParts():
+			return [c['file_name'] for c in self.getAssetsByTagName(ASSET_TAGS['AS_PDF'])]
+		return None
+
 
 	def loadFile(self, asset_path):
 		if asset_path == self.file_name:

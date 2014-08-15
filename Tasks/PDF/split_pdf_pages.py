@@ -35,19 +35,21 @@ def splitPDFPages(task):
 		return
 
 	# get num pages
-	total_pages = pdf_reader.getNumPages()
-	if not hasattr(task, "num_pages"): task.num_pages = MAX_PAGES
+	pdf.total_pages = pdf_reader.getNumPages()
+	pdf.save()
 
-	if total_pages > task.num_pages:
+	if not hasattr(task, "max_pages"): task.max_pages = MAX_PAGES
+
+	if pdf.total_pages > task.max_pages:
 		print "THIS SHOULD BE SPLIT BEFORE CONTINUING!"
 
 		count = done = 0
 		out = PdfFileWriter()
 
-		for x in xrange(0, total_pages):
+		for x in xrange(0, pdf.total_pages):
 			page = pdf_reader.getPage(x)
-
-			if x != 0 and x % num_pages == 0:
+new_pdf.close()
+			if x != 0 and x % task.max_pages == 0:
 				if DEBUG:
 					print "max reached... let's close this doc (done = %d)" % done
 					print "merging pages %d to %d to PDF" % (count, x)
@@ -59,16 +61,19 @@ def splitPDFPages(task):
 				out.write(new_pdf)
 				new_pdf.close()
 
-				if pdf.addAsset(new_pdf.getvalue(), "doc_split_%d.pdf" % done,
-					tags=[ASSET_TAGS['D_S'], ASSET_TAGS['AS_PDF']], description="Chunk %d of original document" % done):
-										
-					task.routeNext(inflate={
-						'split_file' : "doc_split_%d.pdf" % done,
-						'split_index' : done
-					})
-	else:
-		pdf.addCompletedTask(task.task_path)
-		task.routeNext()
+				split_asset_path = pdf.addAsset(new_pdf.getvalue(), "doc_split_%d.pdf" % done,
+					tags=[ASSET_TAGS['D_S'], ASSET_TAGS['AS_PDF']], description="Chunk %d of original document" % done)
 
+				del out
+				out = PdfFileWriter()
+
+			out.addPage(page)
+			count += 1
+	
+		del out
+
+
+	pdf.addCompletedTask(task.task_path)
+	task.routeNext()
 	task.finish()
 	print "\n\n************** SPLITTING PDF PAGES [END] ******************\n"
