@@ -26,7 +26,7 @@ def splitPDFPages(task):
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	from vars import MIME_TYPE_TASKS
 
-	MAX_PAGES = 200
+	MAX_PAGES = 75
 
 	pdf_reader = pdf.loadFile(pdf.file_name)
 	if pdf_reader is None:
