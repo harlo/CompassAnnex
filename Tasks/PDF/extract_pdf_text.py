@@ -38,8 +38,15 @@ def extractPDFText(task):
 			pdf_reader = pdf.loadFile(e)
 		else:
 			pdf_reader = pdf.loadAsset(e)
+			print e
 
-		for x in xrange(0, pdf_reader.getNumPages()):
+		try:
+			num_pages = pdf_reader.getNumPages()
+		except AttributeError as e:
+			print e
+			continue
+
+		for x in xrange(0, num_pages):
 			texts[count] = pdf_reader.getPage(x).extractText()
 			count += 1
 	

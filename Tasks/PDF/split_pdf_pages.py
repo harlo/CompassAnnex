@@ -20,7 +20,7 @@ def splitPDFPages(task):
 		print "\n\n************** SPLITTING PDF PAGES [ERROR] ******************\n"
 		return
 
-	from cStringIO import StringIO
+	from io import BytesIO
 	from PyPDF2 import PdfFileWriter
 
 	from lib.Worker.Models.uv_task import UnveillanceTask
@@ -48,7 +48,7 @@ def splitPDFPages(task):
 
 		for x in xrange(0, pdf.total_pages):
 			page = pdf_reader.getPage(x)
-new_pdf.close()
+			
 			if x != 0 and x % task.max_pages == 0:
 				if DEBUG:
 					print "max reached... let's close this doc (done = %d)" % done
@@ -57,13 +57,21 @@ new_pdf.close()
 				count = x
 				done += 1
 
-				new_pdf = StringIO()
+				new_pdf = BytesIO()
 				out.write(new_pdf)
-				new_pdf.close()
 
 				split_asset_path = pdf.addAsset(new_pdf.getvalue(), "doc_split_%d.pdf" % done,
 					tags=[ASSET_TAGS['D_S'], ASSET_TAGS['AS_PDF']], description="Chunk %d of original document" % done)
 
+				if DEBUG:
+					print "added pdf at path: %s" % split_asset_path
+
+				if split_asset_path is not None:
+					pdf.addFile(split_asset_path, None, sync=True)
+
+				new_pdf.close()
+				del new_pdf
+				
 				del out
 				out = PdfFileWriter()
 

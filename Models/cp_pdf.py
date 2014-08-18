@@ -34,12 +34,15 @@ class CompassPDF(UnveillanceDocument):
 
 
 	def loadAsset(self, file_name):
+		print "LOADING ASSET %s AS PDF:" % file_name
 		asset = self.getAsset(file_name)
+		print asset
+
 		if asset is None: return None
 
-		if hasattr(asset, 'tags') and ASSET_TAGS['AS_PDF'] in asset.tags:
+		if 'tags' in asset[0].keys() and ASSET_TAGS['AS_PDF'] in asset[0]['tags']:
 			try:
-				return PdfFileReader(file(os.path.join(ANNEX_DIR, self.base_path, file_name)))
+				return PdfFileReader(asset[1])
 			except Exception as e:
 				if DEBUG: print e
 				return None

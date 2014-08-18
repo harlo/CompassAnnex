@@ -72,6 +72,8 @@ def generatePageMap(uv_task):
 	global_info = {}
 
 	for i, p in enumerate(pages):
+		if p is None: continue
+		
 		page_bow = p.lower().split(" ")
 		words = intersect1d(use_words, page_bow).tolist()
 		if len(words) == 0: continue
