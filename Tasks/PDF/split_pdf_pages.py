@@ -8,11 +8,8 @@ def splitPDFPages(task):
 	print "splitting pdf at %s into pages" % task.doc_id
 	task.setStatus(412)
 
-	from copy import deepcopy
 	from lib.Worker.Models.cp_pdf import CompassPDF
-
 	from conf import DEBUG
-	from vars import ASSET_TAGS
 
 	pdf = CompassPDF(_id=task.doc_id)
 	if pdf is None:
@@ -20,9 +17,7 @@ def splitPDFPages(task):
 		print "\n\n************** SPLITTING PDF PAGES [ERROR] ******************\n"
 		return
 
-	from io import BytesIO
 	from PyPDF2 import PdfFileWriter
-
 	from lib.Worker.Models.uv_task import UnveillanceTask
 	from vars import MIME_TYPE_TASKS
 
@@ -57,20 +52,7 @@ def splitPDFPages(task):
 				count = x
 				done += 1
 
-				new_pdf = BytesIO()
-				out.write(new_pdf)
-
-				split_asset_path = pdf.addAsset(new_pdf.getvalue(), "doc_split_%d.pdf" % done,
-					tags=[ASSET_TAGS['D_S'], ASSET_TAGS['AS_PDF']], description="Chunk %d of original document" % done)
-
-				if DEBUG:
-					print "added pdf at path: %s" % split_asset_path
-
-				if split_asset_path is not None:
-					pdf.addFile(split_asset_path, None, sync=True)
-
-				new_pdf.close()
-				del new_pdf
+				saveSplitDocument(pdf, out, done)
 				
 				del out
 				out = PdfFileWriter()
@@ -78,6 +60,8 @@ def splitPDFPages(task):
 			out.addPage(page)
 			count += 1
 	
+		done += 1
+		saveSplitDocument(pdf, out, done)
 		del out
 
 
@@ -85,3 +69,23 @@ def splitPDFPages(task):
 	task.routeNext()
 	task.finish()
 	print "\n\n************** SPLITTING PDF PAGES [END] ******************\n"
+
+def saveSplitDocument(pdf, out, done):
+	from conf import DEBUG
+	from vars import ASSET_TAGS
+	from io import BytesIO
+
+	new_pdf = BytesIO()
+	out.write(new_pdf)
+
+	split_asset_path = pdf.addAsset(new_pdf.getvalue(), "doc_split_%d.pdf" % done,
+		tags=[ASSET_TAGS['D_S'], ASSET_TAGS['AS_PDF']], description="Chunk %d of original document" % done)
+
+	if DEBUG:
+		print "added pdf at path: %s" % split_asset_path
+
+	if split_asset_path is not None:
+		pdf.addFile(split_asset_path, None, sync=True)
+
+	new_pdf.close()
+	del new_pdf
