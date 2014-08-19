@@ -332,7 +332,7 @@ def addressParser(task):
 		
 	asset_path = doc.addAsset(addresses, "addresses.json", as_literal=False,
 		description="addresses output from Everyblock address extractor",
-		tags=[ASSET_TAGS['ADDRESSES_NLP']])
+		tags=[ASSET_TAGS['ADDRESSES_NLP'], ASSET_TAGS['CP_ENTITIES']])
 
 	if asset_path is None or not doc.addFile(asset_path, None, sync=True): 
 		print "COULD NOT SAVE ASSET."
