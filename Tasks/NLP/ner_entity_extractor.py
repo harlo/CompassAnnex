@@ -45,7 +45,7 @@ def extractNEREntities(task):
 	for i, page in enumerate(pages):
 		if page is None: continue
 
-		print "LEMMATIZING PAGE %d of %d" % (i, len(pages))
+		print "LEMMATIZING PAGE %d of %d in %s" % (i, len(pages), pdf.file_alias)
 		try:
 			lemmas = st.tag(cleanLine(page).split())
 		except Exception as e:
@@ -54,8 +54,6 @@ def extractNEREntities(task):
 			continue
 
 		if len(lemmas) == 0: continue
-
-		if DEBUG: print "page has %d lemmas" % len(lemmas)
 
 		index = 0
 		current_entity = []
@@ -69,8 +67,6 @@ def extractNEREntities(task):
 				break
 
 			if entity[1] not in ["O"]:
-				print entity, last_pos
-
 				if entity[1] != last_pos:
 					entities = updateEntities(entities, current_entity, entity[1], i)
 					current_entity = []
@@ -83,7 +79,6 @@ def extractNEREntities(task):
 			last_pos = entity[1]
 			index += 1
 
-	if DEBUG: print entities
 	if len(entities.keys()) > 0:
 		ner_entity_path = doc.addAsset(entities, "stanford-ner_entities.json", as_literal=False,
 			description="Entities as per Stanford-NER Tagger (via NLTK)",
@@ -91,6 +86,10 @@ def extractNEREntities(task):
 
 		if ner_entity_path is not None:
 			doc.addFile(ner_entity_path, None, sync=True)
+
+	del texts
+	del entities
+	del st
 
 	doc.addCompletedTask(task.task_path)
 	task.routeNext()
@@ -101,7 +100,7 @@ def updateEntities(entities, current_entity, last_pos, page):
 	from conf import DEBUG
 
 	if len(current_entity) != 0:
-		entity = " ".join(current_entity)
+		entity = " ".join(current_entity).lower()
 
 		if last_pos.lower() not in entities.keys():
 			entities[last_pos.lower()] = []
@@ -125,7 +124,5 @@ def updateEntities(entities, current_entity, last_pos, page):
 		else:
 			if page not in in_page_map[0]['pages']: in_page_map[0]['pages'].append(page)
 			in_page_map[0]['count'] += 1
-
-		
 
 	return entities

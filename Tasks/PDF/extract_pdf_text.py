@@ -66,7 +66,10 @@ def extractPDFText(task):
 		pdf.text_id = uv_text._id
 		pdf.save()
 
+	del texts
+
 	pdf.addCompletedTask(task.task_path)
 	task.routeNext(inflate={ 'text_file' : asset_path })
 	task.finish()
+
 	print "\n\n************** PDF TEXT EXTRACTION [END] ******************\n"
