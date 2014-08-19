@@ -39,6 +39,16 @@ if __name__ == "__main__":
 	else:
 		print "Stanford NLP Package %s already downloaded. skipping..." % config['nlp_pkg']
 	
+	if not os.path.exists(os.path.join("lib", "stanford-ner-2014-06-16")):
+		os.chdir(os.path.join(base_dir, "lib"))
+		with settings(warn_only=True):
+			local("wget http://nlp.stanford.edu/software/stanford-ner-2014-06-16.zip")
+			local("unzip stanford-ner-2014-06-16.zip")
+			local("rm stanford-ner-2014-06-16.zip")
+		os.chdir(base_dir)
+	else:
+		print "Stanford NER Package already downloaded. skipping..."
+
 	with open(os.path.join(base_dir, "lib", "peepdf", "batch.txt"), 'wb+') as BATCH:
 		BATCH.write("info\nmetadata\ntree\n")
 	
@@ -109,6 +119,7 @@ if __name__ == "__main__":
 			base_dir, "lib", "starnford-corenlp"))
 		CONF.write("nlp_server.port: %d\n" % config['nlp_port'])
 		CONF.write("nlp_server.pkg: %s\n" % config['nlp_pkg'])
+		CONF.write("nlp_ner_base: %s\n" % os.path.join(base_dir, "lib", "stanford-ner-2014-06-16"))
 		CONF.write("compass.peepdf.root: %s\n" % os.path.join(
 			base_dir, "lib", "peepdf", "peepdf.py"))
 		CONF.write("compass.peepdf.batch: %s\n" % os.path.join(

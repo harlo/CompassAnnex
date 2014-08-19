@@ -2,3 +2,4 @@
 *.pyc
 lib/peepdf
 lib/stanford-corenlp/stopwords.json
+lib/stanford-ner-*

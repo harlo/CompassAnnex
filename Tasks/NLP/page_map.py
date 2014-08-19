@@ -94,9 +94,7 @@ def generatePageMap(uv_task):
 		global_info['uv_page_map'] = page_map
 		asset_path = doc.addAsset(global_info, "page_map.json", as_literal=False,
 			description="word frequencies, page-by-page", tags=[ASSET_TAGS['PAGE_MAP']])
-		
-		print asset_path
-		
+				
 		if asset_path is None or not doc.addFile(asset_path, None, sync=True):
 			print "COULD NOT SAVE ASSET."
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
