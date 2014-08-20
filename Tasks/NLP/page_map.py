@@ -40,6 +40,8 @@ def generatePageMap(uv_task):
 	
 	# with unique words in bag that are not stopwords
 	# for each page, word count of each
+	uv_task.daemonize()
+	
 	from numpy import intersect1d, setdiff1d
 	from conf import getConfig
 	
@@ -98,6 +100,7 @@ def generatePageMap(uv_task):
 		if asset_path is None or not doc.addFile(asset_path, None, sync=True):
 			print "COULD NOT SAVE ASSET."
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			uv_task.die()
 			return
 	
 	doc.addCompletedTask(uv_task.task_path)

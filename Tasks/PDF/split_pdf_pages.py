@@ -37,6 +37,7 @@ def splitPDFPages(task):
 
 	if pdf.total_pages > task.max_pages:
 		print "THIS SHOULD BE SPLIT BEFORE CONTINUING!"
+		task.daemonize()
 
 		count = done = 0
 		out = PdfFileWriter()

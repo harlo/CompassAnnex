@@ -29,56 +29,18 @@ def extractNEREntities(task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		return
 
-	import os
-	from nltk.tag.stanford import NERTagger
-	from conf import getConfig
-	from lib.Core.Utils.funcs import cleanLine
-
-	st = NERTagger(
-		os.path.join(getConfig('nlp_ner_base'), 
-			"classifiers", "english.all.3class.distsim.crf.ser.gz"),
-		os.path.join(getConfig('nlp_ner_base'), "stanford-ner.jar"))
-
+	task.daemonize()
+	st = getNERTagger()
 	entities = {}
 
-	pages = [text for text in texts]
-	for i, page in enumerate(pages):
+	for i, page in enumerate(texts):
 		if page is None: continue
 
-		print "LEMMATIZING PAGE %d of %d in %s" % (i, len(pages), pdf.file_alias)
-		try:
-			lemmas = st.tag(cleanLine(page).split())
-		except Exception as e:
-			print "\n\n************** %s [WARN] ******************\n" % task_tag
-			print e
-			continue
+		print "LEMMATIZING PAGE %d of %d in %s" % (i, len(texts), doc.file_alias)
+		parsePage(st, page, i, entities)
 
-		if len(lemmas) == 0: continue
-
-		index = 0
-		current_entity = []
-		last_pos = "O"
-
-		while True:
-			try:
-				entity = lemmas[index]
-			except Exception as e:
-				entities = updateEntities(entities, current_entity, last_pos, i)				
-				break
-
-			if entity[1] not in ["O"]:
-				if entity[1] != last_pos:
-					entities = updateEntities(entities, current_entity, entity[1], i)
-					current_entity = []
-
-				current_entity.append(entity[0])
-			else:
-				entities = updateEntities(entities, current_entity, last_pos, i)
-				current_entity = []
-
-			last_pos = entity[1]
-			index += 1
-
+		#if DEBUG and i > 25: break
+		
 	if len(entities.keys()) > 0:
 		ner_entity_path = doc.addAsset(entities, "stanford-ner_entities.json", as_literal=False,
 			description="Entities as per Stanford-NER Tagger (via NLTK)",
@@ -95,6 +57,54 @@ def extractNEREntities(task):
 	task.routeNext()
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
+
+def getNERTagger():
+	import os
+	from nltk.tag.stanford import NERTagger
+	from conf import getConfig
+
+	return NERTagger(
+		os.path.join(getConfig('nlp_ner_base'), 
+			"classifiers", "english.all.3class.distsim.crf.ser.gz"),
+		os.path.join(getConfig('nlp_ner_base'), "stanford-ner.jar")) 
+
+def parsePage(st, page, i, entities):
+	from lib.Core.Utils.funcs import cleanLine
+
+	task_tag = "NER ENTITY EXTRACTION - SUBPROCESS"
+
+	try:
+		lemmas = st.tag(cleanLine(page).split())
+	except Exception as e:
+		print "\n\n************** %s [WARN] ******************\n" % task_tag
+		print "ON PAGE %d:\n%s" % (i, e)
+		return
+
+	if len(lemmas) == 0: return
+
+	index = 0
+	current_entity = []
+	last_pos = "O"
+
+	while True:
+		try:
+			entity = lemmas[index]
+		except Exception as e:
+			entities = updateEntities(entities, current_entity, last_pos, i)				
+			break
+
+		if entity[1] not in ["O"]:
+			if entity[1] != last_pos:
+				entities = updateEntities(entities, current_entity, entity[1], i)
+				current_entity = []
+
+			current_entity.append(entity[0])
+		else:
+			entities = updateEntities(entities, current_entity, last_pos, i)
+			current_entity = []
+
+		last_pos = entity[1]
+		index += 1
 
 def updateEntities(entities, current_entity, last_pos, page):
 	from conf import DEBUG

@@ -25,6 +25,7 @@ def extractPDFText(task):
 		if so, that should be set in the task's properties.
 		
 	"""
+	task.daemonize()
 	texts = [None] * pdf.total_pages
 	
 	if pdf.hasParts():

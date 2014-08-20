@@ -1,4 +1,5 @@
 .DS_Store
+.Trash-1000
 *.pyc
 lib/peepdf
 lib/stanford-corenlp/stopwords.json
