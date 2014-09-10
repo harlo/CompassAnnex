@@ -15,6 +15,18 @@
 		"GM_MM" : "gensim_corpus_mm",
 		"GM_LSI" : "gensim_lsi_model"
 	},
+	"ELASTICSEARCH_MAPPING_STUBS": {
+		"cp_page_text" : {
+			"properties" : {
+				"searchable_text" : {
+					"type" : "string"
+				}
+			},
+			"_parent" : {
+				"type" : "uv_text_stub"
+			}
+		}
+	},
 	"MIME_TYPES" : {},
 	"MIME_TYPE_MAP" : {},
 	"MIME_TYPE_TASKS" : {
@@ -28,9 +40,6 @@
 			"NLP.ner_entity_extractor.extractNEREntities",
 			"NLP.address_parser.addressParser"
 		]
-	},
-	"QUERY_KEYS" : {
-		"filter" : ["searchable_text"]
 	},
 	"METADATA_ASPECTS" : {
 		"PDF" : [

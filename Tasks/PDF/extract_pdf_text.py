@@ -28,6 +28,8 @@ def extractPDFText(task):
 		if so, that should be set in the task's properties.
 		
 	"""
+	from lib.Core.Utils.funcs import cleanLine
+	
 	texts = [None] * pdf.total_pages
 	
 	if pdf.hasParts():
@@ -41,8 +43,6 @@ def extractPDFText(task):
 			pdf_reader = pdf.loadFile(e)
 		else:
 			pdf_reader = pdf.loadAsset(e)
-			print e
-
 		try:
 			num_pages = pdf_reader.getNumPages()
 		except AttributeError as e:
@@ -50,7 +50,7 @@ def extractPDFText(task):
 			continue
 
 		for x in xrange(0, num_pages):
-			texts[count] = pdf_reader.getPage(x).extractText()
+			texts[count] = cleanLine(pdf_reader.getPage(x).extractText())
 			count += 1
 	
 	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
@@ -63,6 +63,7 @@ def extractPDFText(task):
 		uv_text = UnveillanceText(inflate={
 			'media_id' : pdf._id,
 			'searchable_text' : texts,
+			'searchable_text_type' : "cp_page_text",
 			'file_name' : asset_path
 		})
 

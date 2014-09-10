@@ -43,8 +43,6 @@ def extractNEREntities(task):
 	for i, page in enumerate(texts):
 		if page is None: continue
 
-		print "LEMMATIZING PAGE %d of %d in %s" % (i, len(texts), doc.file_alias)
-
 		lemmas = st.get_entities(cleanLine(page))
 		if len(lemmas.keys()) == 0: continue
 
@@ -78,9 +76,6 @@ def updateEntities(entities, current_entity, last_pos, page):
 		
 		if entity not in entities[last_pos.lower()]:
 			entities[last_pos.lower()].append(entity)
-
-		if DEBUG: 
-			print "ENTITY FOUND: %s" % entity
 
 		if "uv_page_map" not in entities.keys(): entities["uv_page_map"] = []
 

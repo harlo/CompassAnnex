@@ -43,7 +43,6 @@ def createGensimObjects(task):
 	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 	with open(os.path.join(getConfig('nlp_server.path'), "stopwords.json"), 'rb') as SW:
 		stopwords = loads(SW.read())['english']
-		print stopwords
 
 	dictionary = corpora.Dictionary(cleanLine(page).lower().split() for page in texts)
 	stop_ids = [dictionary.token2id[stopword] for stopword in stopwords
@@ -54,10 +53,6 @@ def createGensimObjects(task):
 
 	dictionary.filter_tokens(stop_ids + once_ids)
 	dictionary.compactify()
-
-	if DEBUG:
-		print "GENSIM DICT:"
-		print dictionary
 
 	dictionary_path = doc.addAsset(None, "%s.dict" % doc.file_name,
 		description="Gensim Dictionary Object", tags=[ASSET_TAGS["GM_D"]])
@@ -78,10 +73,6 @@ def createGensimObjects(task):
 	doc.addFile(dictionary_path, None, sync=True)
 
 	corpus = [dictionary.doc2bow(cleanLine(page).lower().split()) for page in texts]
-
-	if DEBUG:
-		print "GENSIM CORPUS:"
-		print corpus
 
 	corpus_path = doc.addAsset(None, "%s.mm" % doc.file_name,
 		description="Gensim Corpus Object (Matrix)", tags=[ASSET_TAGS["GM_MM"]])
