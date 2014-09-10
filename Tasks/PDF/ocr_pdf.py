@@ -4,6 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def OCRPDF(task):
+	task.daemonize()
+	
 	task_tag = "PDF OCR-TO-TEXT"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "OCRing text from pdf at %s" % task.doc_id
@@ -18,6 +20,7 @@ def OCRPDF(task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 
 	"""
@@ -33,6 +36,7 @@ def OCRPDF(task):
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 
 	lower_bound = 0
@@ -49,5 +53,5 @@ def OCRPDF(task):
 	if asset_path is not None: pdf.addFile(asset_path, None, sync=True)
 	
 	pdf.addCompletedTask(task.task_path)
-	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
+	task.finish()

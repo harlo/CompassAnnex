@@ -4,6 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def generatePageMap(uv_task):
+	uv_task.daemonize()
+
 	task_tag = "PAGE MAPPER"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "MAPPING PAGES FROM TEXT DOCUMENT at %s" % uv_task.doc_id
@@ -18,6 +20,7 @@ def generatePageMap(uv_task):
 	if doc is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.die()
 		return
 
 	import os, json
@@ -36,12 +39,11 @@ def generatePageMap(uv_task):
 	if pages is None or bow is None:
 		print "NO PAGES OR BAG OF WORDS"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.die()
 		return
 	
 	# with unique words in bag that are not stopwords
-	# for each page, word count of each
-	uv_task.daemonize()
-	
+	# for each page, word count of each	
 	from numpy import intersect1d, setdiff1d
 	from conf import getConfig
 	
@@ -81,16 +83,20 @@ def generatePageMap(uv_task):
 		if len(words) == 0: continue
 		
 		map = []
+		frequency_max = 0
+
 		for word in words:
 			word_info = { 'word' : word, 'count' : page_bow.count(word) }
+			
 			map.append(word_info)
+			if word_info['count'] > frequency_max: frequency_max = word_info['count']
 
 			if word not in global_info.keys():
 				global_info[word] = 0
 
 			global_info[word] += word_info['count']
 		
-		page_map.append({ 'index' : i, 'map' : map })
+		page_map.append({ 'index' : i, 'map' : map, 'frequency_max' : frequency_max })
 	
 	if len(page_map) > 0:
 		global_info['uv_page_map'] = page_map
@@ -105,6 +111,6 @@ def generatePageMap(uv_task):
 	
 	doc.addCompletedTask(uv_task.task_path)
 	uv_task.routeNext()
-	uv_task.finish()
-	print "\n\n************** %s [END] ******************\n" % task_tag
 	
+	print "\n\n************** %s [END] ******************\n" % task_tag
+	uv_task.finish()

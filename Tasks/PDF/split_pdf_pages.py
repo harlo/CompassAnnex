@@ -4,7 +4,11 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def splitPDFPages(task):
-	print "\n\n************** SPLITTING PDF PAGES [START] ******************\n"
+	task.daemonize()
+
+	task_tag = "SPLITTING PDF PAGES"
+
+	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "splitting pdf at %s into pages" % task.doc_id
 	task.setStatus(412)
 
@@ -14,7 +18,8 @@ def splitPDFPages(task):
 	pdf = CompassPDF(_id=task.doc_id)
 	if pdf is None:
 		print "PDF IS NONE"
-		print "\n\n************** SPLITTING PDF PAGES [ERROR] ******************\n"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 
 	from PyPDF2 import PdfFileWriter
@@ -26,7 +31,8 @@ def splitPDFPages(task):
 	pdf_reader = pdf.loadFile(pdf.file_name)
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
-		print "\n\n************** SPLITTING PDF PAGES [ERROR] ******************\n"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 
 	# get num pages
@@ -37,8 +43,7 @@ def splitPDFPages(task):
 
 	if pdf.total_pages > task.max_pages:
 		print "THIS SHOULD BE SPLIT BEFORE CONTINUING!"
-		task.daemonize()
-
+		
 		count = done = 0
 		out = PdfFileWriter()
 
@@ -69,7 +74,7 @@ def splitPDFPages(task):
 	pdf.addCompletedTask(task.task_path)
 	task.routeNext()
 	task.finish()
-	print "\n\n************** SPLITTING PDF PAGES [END] ******************\n"
+	print "\n\n************** %s [END] ******************\n" % task_tag
 
 def saveSplitDocument(pdf, out, done):
 	from conf import DEBUG

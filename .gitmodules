@@ -4,3 +4,6 @@
 [submodule "lib/stanford-corenlp"]
 	path = lib/stanford-corenlp
 	url = git@github.com:relwell/stanford-corenlp-python.git
+[submodule "lib/pyner"]
+	path = lib/pyner
+	url = git@github.com:dat/pyner.git

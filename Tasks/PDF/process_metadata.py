@@ -4,6 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def processPDFMetadata(uv_task):
+	uv_task.daemonize()
+
 	task_tag = "PDF METADATA EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "extracting text from pdf at %s" % uv_task.doc_id
@@ -18,8 +20,9 @@ def processPDFMetadata(uv_task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.die()
 		return
-		
+
 	import os
 	from conf import ANNEX_DIR, getConfig
 	from fabric.api import local, settings
@@ -32,6 +35,7 @@ def processPDFMetadata(uv_task):
 	if peepdf_raw is None:
 		print "METADATA COULD NOT BE GENERATED"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.die()
 		return
 	
 	import re
@@ -45,6 +49,7 @@ def processPDFMetadata(uv_task):
 	if md_file is None or not pdf.addFile(md_file, None, sync=True):
 		print "METADATA COULD NOT BE ADDED"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		uv_task.die()
 		return
 	
 	pdf.addCompletedTask(uv_task.task_path)
@@ -53,5 +58,5 @@ def processPDFMetadata(uv_task):
 		'md_namespace' : "PDF"
 	})
 	
-	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
+	uv_task.finish()

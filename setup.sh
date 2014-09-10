@@ -15,6 +15,9 @@ source ~/.bash_profile
 echo $PATH
 sleep 2
 
+cd lib/pyner
+python setup.py install
+
 cd $THIS_DIR
 
 pip install --upgrade fabric

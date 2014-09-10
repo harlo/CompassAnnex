@@ -12,36 +12,22 @@ class CompassNLPServer(object):
 		self.pid_file = os.path.join(MONITOR_ROOT, "nlp_svr.pid.txt")
 		self.log_file = os.path.join(MONITOR_ROOT, "nlp_svr.log.txt")
 		
-		if not self.getStatus():
-			p = Process(target=self.startServer)
-			p.start()
-	
-	def getStatus(self):
-		try:
-			server_port = getConfig('nlp_server.port')
-			r = requests.get("http://localhost:%d" % server_port)
-			if r.status_code == 501:
-				self.nlp_server = jsonrpclib.Server("http://localhost:%d" % server_port)
-				return True
-		except IOError as e: pass
-		
-		return False
+		p = Process(target=self.startServer)
+		p.start()
 			
 	def startServer(self):
 		from fabric.api import local, settings
 		
-		server_path = getConfig('nlp_server.path')
-		
-		cmd = "python %s -S %s -p %d" % (
-			os.path.join(server_path, "corenlp", "corenlp.py"),
-			os.path.join(server_path, getConfig('nlp_server.pkg')),
-			getConfig('nlp_server.port'))
+		this_dir = os.getcwd()
+		cmd = "java -mx1000m -cp stanford-ner.jar edu.stanford.nlp.ie.NERServer -loadClassifier classifiers/english.all.3class.distsim.crf.ser.gz -port %d -outputFormat inlineXML" % getConfig('nlp_server.port')
 		
 		if DEBUG: 
 			print "STARTING NLP SERVER:"
 			print cmd
 		
+		os.chdir(getConfig('nlp_ner_base'))
 		with settings(warn_only=True):
+			local("kill -9 $(lsof -t -i:%d)" % getConfig('nlp_server.port'))
 			start_cmd = local(cmd)
 		
 		print start_cmd
@@ -57,53 +43,3 @@ class CompassNLPServer(object):
 			del self.nlp_server
 		except Exception as e:
 			print "error stopping NLP server\n%s" % e
-	
-	def tokenize(self, texts):
-		if type(texts) is not list: texts = [texts]
-		
-		tokenized = []
-		for text in texts: 
-			printAsLog("Attempting to tokenize:\n%s..." % text[:135])
-
-			try:
-				parse = self.nlp_server.parse(text)
-				print type(parse)
-				tokenized.append(json.loads(parse))
-			except Exception as e:
-				if DEBUG: print e
-				continue
-		
-		if len(tokenized) > 0: return tokenized
-		return None
-	
-	def sendNLPRequest(self, query):
-		if not self.getStatus():
-			if DEBUG: print "starting NLP server before requesting"
-			p = Process(target=self.startServer)
-			p.start()
-			
-			starts = 0
-			while not self.getStatus():
-				if DEBUG: print "Still waiting for NLP server to become available..."
-				starts += 1
-				sleep(5)
-				
-				if starts >= 24: 
-					if DEBUG: print "Sorry, this server is just never going to start."
-					return None
-				
-		if 'method' not in query.keys() or 'txt' not in query.keys():
-			if DEBUG: print "no method or text.  nothing to do"
-			return None
-		
-		try:
-			print "sending text:"
-			print type(query['txt'])
-			
-			if query['method'] == "tokenize":
-				return self.tokenize(query['txt'])
-				
-		except AttributeError as e: pass
-		
-		return None
-			

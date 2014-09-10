@@ -4,6 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def addressParser(task):
+	task.daemonize()
+
 	task_tag = "NLP ADDRESS PARSER"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "EXTRACTING ADDRESSES FROM TEXT DOCUMENT at %s" % task.doc_id
@@ -18,6 +20,7 @@ def addressParser(task):
 	if doc is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 
 	txt = None
@@ -34,6 +37,7 @@ def addressParser(task):
 	if txt is None:
 		print "TEXT FILE IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 	
 	import re
@@ -324,6 +328,7 @@ def addressParser(task):
 	if addresses is None:
 		print "COULD NOT EXTRACT ADDRESSES."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 	
 	if DEBUG:
@@ -337,12 +342,13 @@ def addressParser(task):
 	if asset_path is None or not doc.addFile(asset_path, None, sync=True): 
 		print "COULD NOT SAVE ASSET."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 	
 	doc.addCompletedTask(task.task_path)
 	task.routeNext()
-	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
+	task.finish()
 
 def parse_addresses(text, ADDRESSES_RE):
     """

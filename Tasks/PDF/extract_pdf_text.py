@@ -4,6 +4,8 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def extractPDFText(task):
+	task.daemonize()
+	
 	task_tag = "PDF TEXT EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "extracting text from pdf at %s" % task.doc_id
@@ -18,6 +20,7 @@ def extractPDFText(task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.die()
 		return
 
 	"""
@@ -25,7 +28,6 @@ def extractPDFText(task):
 		if so, that should be set in the task's properties.
 		
 	"""
-	task.daemonize()
 	texts = [None] * pdf.total_pages
 	
 	if pdf.hasParts():
@@ -71,6 +73,6 @@ def extractPDFText(task):
 
 	pdf.addCompletedTask(task.task_path)
 	task.routeNext(inflate={ 'text_file' : asset_path })
-	task.finish()
-
 	print "\n\n************** PDF TEXT EXTRACTION [END] ******************\n"
+
+	task.finish()
