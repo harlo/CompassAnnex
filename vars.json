@@ -23,7 +23,7 @@
 				}
 			},
 			"_parent" : {
-				"type" : "uv_text_stub"
+				"type" : "uv_document"
 			}
 		}
 	},

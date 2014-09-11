@@ -29,7 +29,8 @@ def extractPDFText(task):
 		
 	"""
 	from lib.Core.Utils.funcs import cleanLine
-	
+	from Models.uv_els_stub import UnveillanceELSStub
+
 	texts = [None] * pdf.total_pages
 	
 	if pdf.hasParts():
@@ -50,7 +51,15 @@ def extractPDFText(task):
 			continue
 
 		for x in xrange(0, num_pages):
-			texts[count] = cleanLine(pdf_reader.getPage(x).extractText())
+			text = cleanLine(pdf_reader.getPage(x).extractText())
+			texts[count] = text
+
+			els_stub = UnveillanceELSStub('cp_page_text', inflate={
+				'media_id' : pdf._id,
+				'searchable_text' : text,
+				'index_in_parent' : count
+			})
+
 			count += 1
 	
 	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
@@ -58,16 +67,6 @@ def extractPDFText(task):
 
 	if asset_path is not None: 
 		pdf.addFile(asset_path, None, sync=True)
-		
-		from lib.Worker.Models.uv_text import UnveillanceText
-		uv_text = UnveillanceText(inflate={
-			'media_id' : pdf._id,
-			'searchable_text' : texts,
-			'searchable_text_type' : "cp_page_text",
-			'file_name' : asset_path
-		})
-
-		pdf.text_id = uv_text._id
 		pdf.save()
 
 	del texts
