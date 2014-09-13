@@ -3,15 +3,20 @@ THIS_DIR=`pwd`
 
 if [ $# -eq 0 ]
 then
-	WITH_CONFIG=None
+	echo "{}" > $THIS_DIR/lib/Annex/conf/compass.secrets.json
+	WITH_CONFIG=$THIS_DIR/lib/Annex/conf/compass.secrets.json
 else
 	WITH_CONFIG=$1
 fi
 
 cd lib/Annex
 ./setup.sh $WITH_CONFIG
-source ~/.bashrc
+source ~/.bash_profile
+echo $PATH
 sleep 2
+
+cd lib/pyner
+python setup.py install
 
 cd $THIS_DIR
 

@@ -6,7 +6,57 @@
 		"DOC_CLOUD_ENTITIES" : "document_cloud_entities",
 		"DOC_CLOUD_MANIFEST" : "document_cloud_manifest",
 		"DOC_CLOUD_DOC" : "document_cloud_document",
+<<<<<<< HEAD
 		"ADDRESSES_NLP" : "addresses_nlp"
+=======
+		"ADDRESSES_NLP" : "addresses_everyblock_nlp",
+		"PAGE_MAP" : "uv_page_map",
+		"STANFORD_NER_ENTITIES" : "stanford-ner_entities",
+		"CP_ENTITIES" : "compass_entity_document",
+		"CP_TOPICS" : "compass_topic_model_document",
+		"GM_D" : "gensim_dict",
+		"GM_MM" : "gensim_corpus_mm",
+		"GM_LSI" : "gensim_lsi_model"
+	},
+	"ELASTICSEARCH_MAPPING_STUBS": {
+		"cp_page_text" : {
+			"properties" : {
+				"searchable_text" : {
+					"type" : "string"
+				},
+				"media_id" : {
+					"type" : "string",
+					"index" : "not_analyzed"
+				}
+			},
+			"_parent" : {
+				"type" : "uv_document"
+			}
+		}
+	},
+	"QUERY_DEFAULTS" : {
+		"CP_PAGE_TEXT" : {
+			"bool" : {
+				"must_not" : [
+					{
+						"constant_score" : {
+							"filter" : {
+								"missing" : {
+									"field" : "cp_page_text.media_id"
+								}
+							}
+						}
+					}
+				],
+				"must" : []
+			}
+		}
+	},
+	"QUERY_KEYS" : {
+		"must" : {
+			"match" : ["index_in_parent"]
+		}
+>>>>>>> danse
 	},
 	"MIME_TYPES" : {},
 	"MIME_TYPE_MAP" : {},
@@ -14,10 +64,15 @@
 		"application/pdf" : [
 			"PDF.process_metadata.processPDFMetadata", 
 			"PDF.split_pdf_pages.splitPDFPages",
-			"PDF.ocr_pdf.OCRPDF", 
 			"PDF.extract_pdf_text.extractPDFText", 
 			"Text.preprocess_nlp.preprocessNLP",
+<<<<<<< HEAD
 			"NLP.tokenizer.basicTokenizer",
+=======
+			"NLP.page_map.generatePageMap",
+			"NLP.topic_modeler.createGensimObjects",
+			"NLP.ner_entity_extractor.extractNEREntities",
+>>>>>>> danse
 			"NLP.address_parser.addressParser"
 		]
 	},
