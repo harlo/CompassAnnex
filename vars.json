@@ -50,9 +50,7 @@
 		}
 	},
 	"QUERY_KEYS" : {
-		"must" : {
-			"match" : ["index_in_parent"]
-		}
+		"filter_terms" : ["index_in_parent"]
 	},
 	"MIME_TYPES" : {},
 	"MIME_TYPE_MAP" : {},
