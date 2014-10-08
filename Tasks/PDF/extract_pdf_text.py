@@ -73,6 +73,6 @@ def extractPDFText(task):
 
 	pdf.addCompletedTask(task.task_path)
 	task.routeNext(inflate={ 'text_file' : asset_path })
-	print "\n\n************** PDF TEXT EXTRACTION [END] ******************\n"
+	print "\n\n************** %s [END] ******************\n" % task_tag
 
 	task.finish()
