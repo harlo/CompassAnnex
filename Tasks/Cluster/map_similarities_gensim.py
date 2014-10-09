@@ -13,31 +13,56 @@ def mapSimilaritiesGensim(uv_task):
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
 			return
 
-	import json, re, os
+	import json, re, os, logging, bz2
 	from gensim import corpora, models
 
 	from lib.Worker.Models.uv_document import UnveillanceDocument
-	from conf import DEBUG, getConfig
+	from lib.Core.Utils.funcs import cleanLine
+	from conf import DEBUG, ANNEX_DIR, getConfig
 	from vars import ASSET_TAGS
 
 	#uv_task.daemonize()
 	uv_task.setStatus(412)
 
-	wiki_dictionary = corpora.Dictionary.load(os.path.join(getConfig('compass.gensim.training_data'), "wiki_dict.dict"))
-	wiki_corpus = corpora.MmCorpus(os.path.join(getConfig('compass.gensim.training_data'), "wiki_corpus.mm"))
+	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
+	for i, d in enumerate(uv_task.documents):
+		d = UnveillanceDocument(_id=d)
+		is_valid = True
+
+		for f in ["%s.mm", "%s.dict"]:
+			if not d.getFile(os.path.join(d.base_path, f % d.file_name)):
+				is_valid = False
+				break
+
+		if is_valid:
+			wiki_dictionary = corpora.Dictionary.load(
+				os.path.join(ANNEX_DIR, d.base_path, "%s.dict" % d.file_name))
+
+			wiki_corpus = corpora.MmCorpus(
+				os.path.join(ANNEX_DIR, d.base_path, "%s.mm" % d.file_name))
+
+			break
+
+	'''
+	wiki_dictionary = corpora.Dictionary.load_from_text(
+		os.path.join(getConfig('compass.gensim.training_data'), "wiki_en_wordids.txt"))
+	wiki_corpus = corpora.MmCorpus(bz2.BZ2File(
+		os.path.join(getConfig('compass.gensim.training_data'), "wiki_en_tfidf.mm.bz2")))
+	'''
 
 	logent_transformation = models.LogEntropyModel(wiki_corpus, id2word=wiki_dictionary)
-	tokenize_function = wiki_corpus.tokenize
-	cluster_corpus = []
+	tokenize_function = corpora.wikicorpus.tokenize
 
+	cluster_corpus = []
 	document_map = {
 		'query' : uv_task.query,
 		'map' : []
 	}
 
-	query_rx = re.compile(r'.*%s.*' % "|".join(uv_task.query.split(",")))
-		
-	for document in [UnveillanceDocument(_id=d) for d in uv_task.cluster_documents]:
+
+	query_rx = re.compile(r'.*%s.*' % "|".join(uv_task.query))
+	for document in [UnveillanceDocument(_id=d) for d in uv_task.documents]:
 		concerned_pages = []
 
 		try:
@@ -54,6 +79,11 @@ def mapSimilaritiesGensim(uv_task):
 		if len(concerned_pages) > 0:
 			concerned_pages = list(set(concerned_pages))
 
+			doc_map = {
+				'_id' : document._id,
+				'pages' : [{ 'index_in_parent' : i } for i in concerned_pages]
+			}
+
 			try:
 				entity_map = json.loads(document.loadAsset("stanford-ner_entities.json"))['uv_page_map']
 			except Exception as e:
@@ -61,11 +91,13 @@ def mapSimilaritiesGensim(uv_task):
 				print e
 				entity_map = None
 
-			doc_map = {
-				'_id' : document._id,
-				'pages' : [{ 'index_in_parent' : i, 'entities' : [] if entity_map is None else list(set(
-				[e['entity'] for e in filter(lambda e: i in e['pages'], entity_map)])) } for i in concerned_pages]
-			})
+			if entity_map is not None:
+				for s in doc_map['pages']:
+					try:
+						s['entities'] = list(set(filter(
+							lambda e: s['index_in_parent'] in e['pages'], entity_map)))
+
+					except Exception as e: pass
 
 			try:
 				texts = json.loads(document.loadAsset("doc_texts.json"))
@@ -75,30 +107,30 @@ def mapSimilaritiesGensim(uv_task):
 				texts = None
 
 			if texts is not None:
+				# topic modeling the page
 				for page in concerned_pages:
 					try:
-						cluster_corpus.append(wiki_dictionary.doc2bow(tokenize_function(text[page])))
+						cluster_corpus.append(wiki_dictionary.doc2bow(tokenize_function(cleanLine(texts[page]))))
 					except Exception as e:
 						print "\n\n************** %s [WARN] ******************\n" % task_tag
 						print e
 						continue
 
-					try:
-						page_item = filter(lambda s: s['index_in_parent'] == page, doc_map['pages'])[0]
-						doc_map['pages'][doc_map['pages'].index(page_item)].update({
-							'index_in_corpus' : len(cluster_corpus) - 1
-						})
-					except Exception as e:
-						print "\n\n************** %s [WARN] ******************\n" % task_tag
-						print e
-			
+					for s in doc_map['pages']:
+						try:
+							if s['index_in_parent'] == page:
+								s['index_in_corpus']  = len(cluster_corpus) - 1
+								break
+
+						except Exception as e: pass
+
 			document_map['map'].append(doc_map)
 
-	if len(document_map['grouping']) == 0:
-		print "no document groups created"
-		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		#uv_task.die()
-		return
+		if len(document_map['map']) == 0:
+			print "no document groups created"
+			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			#uv_task.die()
+			return
 
 	# make a corpus out of the concerned pages
 	if len(cluster_corpus) > 0:
@@ -107,38 +139,38 @@ def mapSimilaritiesGensim(uv_task):
 		wiki_tfidf = models.TfidfModel(wiki_corpus)
 		cluster_tfidf = wiki_tfidf[cluster_corpus]
 		
-
 		lsi = models.LsiModel(corpus=cluster_tfidf, id2word=wiki_dictionary, num_topics=len(cluster_corpus))
-		cluster_lsi = lsi[corpus_tfidf]
+		cluster_lsi = lsi[cluster_tfidf]
 
 		# for all of the cluster_lsi objects, each document (a page within a doc, actually) will be rated according to its topic set
 		for i, topics in enumerate(cluster_lsi):
-			try:
-				page_item = filter(lambda s: s['index_in_corpus'] == i, doc_map['pages'])[0]
-				page_item_index = doc_map['pages'].index(page_item)
+			page_item_index = -1
 
-				page_item['topic_comprehension'] = topics
-				del page_item['index_in_corpus']
-				
-				doc_map['pages'][page_item_index] = page_item
-			except Exception as e:
-				print "\n\n************** %s [WARN] ******************\n" % task_tag
-				print e
-				continue
-		
-		doc_map['topics'] = lsi.show_topics()
+			for doc_map in document_map['map']:
+				for p, page_item in enumerate(doc_map['pages']):
+					try:
+						if page_item['index_in_corpus'] == i:
+							page_item_index = p
+							page_item['topic_comprehension'] = topics
+							del page_item['index_in_corpus']
 
-	if DEBUG:
-		print "\n\n************** %s [OUTPUT!] ******************\n" % task_tag
-		print doc_map
-		print "\n\n"
+							print "FOUND PAGE ITEM FOR %d at %d" % (i, p)
+							break
+
+					except Exception as e: continue
+
+				if page_item_index != -1: break
+
+			
+		document_map['topics'] = lsi.show_topics()
 
 	# save massaged data to task outupt
-	if not uv_task.addAsset(doc_map, "gensim_similarity_output.json", as_literal=False):
+	if not uv_task.addAsset(document_map, "gensim_similarity_output.json", as_literal=False):
 		print "could not save result asset to this task."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		#uv_task.die()
 		return
 
 	print "\n\n************** %s [END] ******************\n" % task_tag
-	uv_task.save(built=True)
+	#uv_task.save(built=True)
+	uv_task.finish()
