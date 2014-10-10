@@ -6,9 +6,6 @@
 		"DOC_CLOUD_ENTITIES" : "document_cloud_entities",
 		"DOC_CLOUD_MANIFEST" : "document_cloud_manifest",
 		"DOC_CLOUD_DOC" : "document_cloud_document",
-<<<<<<< HEAD
-		"ADDRESSES_NLP" : "addresses_nlp"
-=======
 		"ADDRESSES_NLP" : "addresses_everyblock_nlp",
 		"PAGE_MAP" : "uv_page_map",
 		"STANFORD_NER_ENTITIES" : "stanford-ner_entities",
@@ -53,10 +50,7 @@
 		}
 	},
 	"QUERY_KEYS" : {
-		"must" : {
-			"match" : ["index_in_parent"]
-		}
->>>>>>> danse
+		"filter_terms" : ["index_in_parent"]
 	},
 	"MIME_TYPES" : {},
 	"MIME_TYPE_MAP" : {},
@@ -66,13 +60,9 @@
 			"PDF.split_pdf_pages.splitPDFPages",
 			"PDF.extract_pdf_text.extractPDFText", 
 			"Text.preprocess_nlp.preprocessNLP",
-<<<<<<< HEAD
-			"NLP.tokenizer.basicTokenizer",
-=======
 			"NLP.page_map.generatePageMap",
 			"NLP.topic_modeler.createGensimObjects",
 			"NLP.ner_entity_extractor.extractNEREntities",
->>>>>>> danse
 			"NLP.address_parser.addressParser"
 		]
 	},

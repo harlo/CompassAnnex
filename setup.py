@@ -49,6 +49,11 @@ if __name__ == "__main__":
 	else:
 		print "Stanford NER Package already downloaded. skipping..."
 
+	gensim_lib = os.path.join(base_dir, "lib", "gensim_lib")
+	if not os.path.exists(gensim_lib):
+		with settings(warn_only=True):
+			local("mkdir %s" % gensim_lib)
+
 	with open(os.path.join(base_dir, "lib", "peepdf", "batch.txt"), 'wb+') as BATCH:
 		BATCH.write("info\nmetadata\ntree\n")
 	
@@ -125,5 +130,26 @@ if __name__ == "__main__":
 		CONF.write("compass.peepdf.batch: %s\n" % os.path.join(
 			base_dir, "lib", "peepdf", "batch.txt"))
 		CONF.write("documentcloud.proj_title: Compass v1\n")
+		CONF.write("compass.gensim.training_data: %s\n" % gensim_lib)
+
+	ititial_tasks = []
+
+	try:
+		with open(os.path.join(conf_dir, "initial_tasks.json"), 'rb') as I_TASKS:
+			initial_tasks.extend(json.loads(I_TASKS.read()))
+	except IOError as e: pass
+
+	initial_tasks.append({
+		'task_path' : "NLP.gensim_dictionary.buildGensimDictionary",
+		'queue' : os.getenv('UV_UUID')
+	})
+
+	initial_tasks.append({
+		'task_path' : "NLP.start_server.startNLPServer",
+		'queue' : os.getenv('UV_UUID')
+	})
+
+	with open(os.path.join(conf_dir, "initial_tasks.json"), 'wb+') as I_TASKS:
+		I_TASKS.write(json.dumps(initial_tasks))
 	
 	exit(0)
