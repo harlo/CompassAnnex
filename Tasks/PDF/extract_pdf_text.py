@@ -63,7 +63,7 @@ def extractPDFText(task):
 			count += 1
 	
 	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
-		description="jsonified texts in document; page-by-page, segment-by-segment. uncleaned. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])
+		description="jsonified texts in document; page-by-page, segment-by-segment. unclean. (Not OCR)", tags=[ASSET_TAGS['TXT_JSON']])
 
 	if asset_path is not None: 
 		pdf.addFile(asset_path, None, sync=True)

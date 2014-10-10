@@ -64,5 +64,15 @@ def basicTokenizer(task):
 		return
 	
 	doc.addCompletedTask(task.task_path)
+	
+	from lib.Models.uv_task import UnveillanceTask
+	
+	next_task = UnveillanceTask(inflate={
+		'doc_id' : doc._id,
+		'task_path' : "NLP.address_parser.addressParser",
+		'queue' : task.queue
+	})
+	next_task.run()
+	
 	task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag
