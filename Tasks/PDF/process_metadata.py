@@ -9,7 +9,7 @@ def processPDFMetadata(uv_task):
 	task_tag = "PDF METADATA EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "extracting text from pdf at %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.cp_pdf import CompassPDF
 

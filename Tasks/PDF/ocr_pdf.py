@@ -9,7 +9,7 @@ def OCRPDF(task):
 	task_tag = "PDF OCR-TO-TEXT"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "OCRing text from pdf at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 
 	from lib.Worker.Models.cp_pdf import CompassPDF
 

@@ -7,7 +7,7 @@ def uploadDocument(uv_task):
 	task_tag = "DOCUMENTCLOUD UPLOAD"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "uploading doc %s to DocumentCloud" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 	
 	from lib.Worker.Models.cp_documentcloud_client import CompassDocumentCloudClient
 	from lib.Worker.Models.uv_document import UnveillanceDocument

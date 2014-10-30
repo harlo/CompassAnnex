@@ -22,7 +22,7 @@ def mapSimilaritiesGensim(uv_task):
 	from vars import ASSET_TAGS
 
 	#uv_task.daemonize()
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 
 	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 

@@ -10,7 +10,7 @@ def splitPDFPages(task):
 
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "splitting pdf at %s into pages" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 
 	from lib.Worker.Models.cp_pdf import CompassPDF
 	from conf import DEBUG

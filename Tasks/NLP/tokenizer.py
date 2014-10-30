@@ -7,7 +7,7 @@ def basicTokenizer(task):
 	task_tag = "NLP TOKENIZER"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "TOKENIZING TEXT DOCUMENT at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 

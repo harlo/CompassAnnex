@@ -7,7 +7,7 @@ def buildGensimDictionary(uv_task):
 	task_tag = "BUILDING GENSIM DICTIONARY!!!"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 
 	import os
 	from conf import DEBUG, getConfig
