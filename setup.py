@@ -1,4 +1,4 @@
-import os
+import os, json
 from fabric.operations import prompt
 from fabric.api import local, settings
 
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 		CONF.write("documentcloud.proj_title: Compass v1\n")
 		CONF.write("compass.gensim.training_data: %s\n" % gensim_lib)
 
-	ititial_tasks = []
+	initial_tasks = []
 
 	try:
 		with open(os.path.join(conf_dir, "initial_tasks.json"), 'rb') as I_TASKS:
