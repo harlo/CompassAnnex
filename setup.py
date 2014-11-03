@@ -121,7 +121,7 @@ if __name__ == "__main__":
 	with open(os.path.join(conf_dir, "annex.config.yaml"), 'ab') as CONF:
 		CONF.write("vars_extras: %s\n" % os.path.join(base_dir, "vars.json"))
 		CONF.write("nlp_server.path: %s\n" % os.path.join(
-			base_dir, "lib", "starnford-corenlp"))
+			base_dir, "lib", "stanford-corenlp"))
 		CONF.write("nlp_server.port: %d\n" % config['nlp_port'])
 		CONF.write("nlp_server.pkg: %s\n" % config['nlp_pkg'])
 		CONF.write("nlp_ner_base: %s\n" % os.path.join(base_dir, "lib", "stanford-ner-2014-06-16"))
