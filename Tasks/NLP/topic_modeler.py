@@ -43,10 +43,10 @@ def createGensimObjects(task):
 	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 	try:
-		wiki_dictionary = corpora.Dictionary.load_from_text(
-			os.path.join(getConfig('compass.gensim.training_data'), 'wiki_en_wordids.txt'))
-		wiki_corpus = corpora.MmCorpus(bz2.BZ2File(
-			os.path.join(getConfig('compass.gensim.training_data'), 'wiki_en_tfidf.mm.bz2')))
+		wiki_dictionary = corpora.Dictionary.load_from_text(os.path.join(
+			getConfig('compass.gensim.training_data'), 'wiki_en_wordids.txt'))
+		wiki_corpus = corpora.MmCorpus(bz2.BZ2File(os.path.join(
+			getConfig('compass.gensim.training_data'), 'wiki_en_tfidf.mm.bz2')))
 	except Exception as e:
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		error_msg = "having trouble loading gensim dictionary and corpus from wiki dump: (error type %s)" % type(e)
@@ -65,7 +65,17 @@ def createGensimObjects(task):
 	doc_corpus = [wiki_dictionary.doc2bow(cleanLine(page).lower().split()) for page in texts]
 	doc_corpus = logent_transformation[doc_corpus]
 
-	wiki_tfidf = models.TfidfModel(wiki_corpus)
+	wiki_tfidf_file = os.path.join(getConfig('compass.gensim.training_data'), 'wiki_en_tfidf.tfidf_model')
+	
+	if not os.path.exists(wiki_tfidf_file):
+		print "\n\n************** %s [WARN] ******************\n" % task_tag
+		print "no pre-prepared tfidf model.  going to generate this here, now.  might take a minute..."
+		
+		wiki_tfidf = models.TfidfModel(wiki_corpus)
+		wiki_tfidf.save(wiki_tfidf_file)
+	else:
+		wiki_tfidf = models.TfidfModel.load(wiki_tfidf_file)
+
 	doc_tfidf = wiki_tfidf[doc_corpus]
 
 	num_topics = 300
