@@ -59,14 +59,20 @@ def createGensimObjects(task):
 
 	from gensim import models
 
-	logent_transformation = models.LogEntropyModel(wiki_corpus, id2word=wiki_dictionary)
-	tokenize_function = corpora.wikicorpus.tokenize
+	wiki_log_entropy_file = os.path.join(getConfig('compass.gensim.training_data'), 'wiki_en_log_entropy.model')
+	if not os.path.exists(wiki_log_entropy_file):
+		print "\n\n************** %s [WARN] ******************\n" % task_tag
+		print "no pre-prepared log entropy model.  going to generate this here, now.  might take a minute..."
+		
+		logent_transformation = models.LogEntropyModel(wiki_corpus, id2word=wiki_dictionary)
+		logent_transformation.save(wiki_log_entropy_file)
+	else:
+		logent_transformation = models.LogEntropyModel.load(wiki_log_entropy_file)
 
 	doc_corpus = [wiki_dictionary.doc2bow(cleanLine(page).lower().split()) for page in texts]
 	doc_corpus = logent_transformation[doc_corpus]
 
 	wiki_tfidf_file = os.path.join(getConfig('compass.gensim.training_data'), 'wiki_en_tfidf.tfidf_model')
-	
 	if not os.path.exists(wiki_tfidf_file):
 		print "\n\n************** %s [WARN] ******************\n" % task_tag
 		print "no pre-prepared tfidf model.  going to generate this here, now.  might take a minute..."
