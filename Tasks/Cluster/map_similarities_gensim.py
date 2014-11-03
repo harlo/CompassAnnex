@@ -41,7 +41,6 @@ def mapSimilaritiesGensim(uv_task):
 		'map' : []
 	}
 
-
 	query_rx = re.compile(r'.*%s.*' % "|".join(uv_task.query))
 	for document in [UnveillanceDocument(_id=d) for d in uv_task.documents]:
 		concerned_pages = []
@@ -117,7 +116,17 @@ def mapSimilaritiesGensim(uv_task):
 	if len(cluster_corpus) > 0:
 		cluster_corpus = logent_transformation[cluster_corpus]
 
-		wiki_tfidf = models.TfidfModel(wiki_corpus)
+		wiki_tfidf_file = os.path.join(getConfig('compass.gensim.training_data'), 'wiki_en_tfidf.tfidf_model')
+	
+		if not os.path.exists(wiki_tfidf_file):
+			print "\n\n************** %s [WARN] ******************\n" % task_tag
+			print "no pre-prepared tfidf model.  going to generate this here, now.  might take a minute..."
+			
+			wiki_tfidf = models.TfidfModel(wiki_corpus)
+			wiki_tfidf.save(wiki_tfidf_file)
+		else:
+			wiki_tfidf = models.TfidfModel.load(wiki_tfidf_file)
+		
 		cluster_tfidf = wiki_tfidf[cluster_corpus]
 		
 		lsi = models.LsiModel(corpus=cluster_tfidf, id2word=wiki_dictionary, num_topics=len(cluster_corpus))
