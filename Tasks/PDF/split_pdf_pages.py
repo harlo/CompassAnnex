@@ -10,7 +10,7 @@ def splitPDFPages(task):
 
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "splitting pdf at %s into pages" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 
 	from lib.Worker.Models.cp_pdf import CompassPDF
 	from conf import DEBUG
@@ -19,7 +19,7 @@ def splitPDFPages(task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	from PyPDF2 import PdfFileWriter
@@ -32,7 +32,7 @@ def splitPDFPages(task):
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	# get num pages

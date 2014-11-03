@@ -27,7 +27,7 @@ class CompassNLPServer(object):
 		
 		os.chdir(getConfig('nlp_ner_base'))
 		with settings(warn_only=True):
-			local("kill -9 $(lsof -t -i:%d)" % getConfig('nlp_server.port'))
+			local("kill $(lsof -t -i:%d)" % getConfig('nlp_server.port'))
 			start_cmd = local(cmd)
 		
 		print start_cmd

@@ -9,7 +9,7 @@ def extractNEREntities(task):
 	task_tag = "NER ENTITY EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "TOKENIZING TEXT DOCUMENT at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 
@@ -20,7 +20,7 @@ def extractNEREntities(task):
 	if doc is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	from json import loads
@@ -30,7 +30,7 @@ def extractNEREntities(task):
 	except Exception as e:
 		print "ERROR GETTING DOC-TEXTS: %s" % e
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	import ner, os

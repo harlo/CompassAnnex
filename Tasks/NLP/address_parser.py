@@ -9,7 +9,7 @@ def addressParser(task):
 	task_tag = "NLP ADDRESS PARSER"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "EXTRACTING ADDRESSES FROM TEXT DOCUMENT at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 
 	from lib.Worker.Models.uv_document import UnveillanceDocument
 
@@ -20,7 +20,7 @@ def addressParser(task):
 	if doc is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	txt = None
@@ -37,7 +37,7 @@ def addressParser(task):
 	if txt is None:
 		print "TEXT FILE IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 	
 	import re
@@ -328,13 +328,9 @@ def addressParser(task):
 	if addresses is None:
 		print "COULD NOT EXTRACT ADDRESSES."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 	
-	if DEBUG:
-		print "here is res"
-		print type(addresses)
-		
 	asset_path = doc.addAsset(addresses, "addresses.json", as_literal=False,
 		description="addresses output from Everyblock address extractor",
 		tags=[ASSET_TAGS['ADDRESSES_NLP'], ASSET_TAGS['CP_ENTITIES']])
@@ -342,7 +338,7 @@ def addressParser(task):
 	if asset_path is None or not doc.addFile(asset_path, None, sync=True): 
 		print "COULD NOT SAVE ASSET."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 	
 	doc.addCompletedTask(task.task_path)

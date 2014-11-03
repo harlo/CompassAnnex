@@ -9,7 +9,7 @@ def processPDFMetadata(uv_task):
 	task_tag = "PDF METADATA EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "extracting text from pdf at %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 		
 	from lib.Worker.Models.cp_pdf import CompassPDF
 
@@ -20,7 +20,7 @@ def processPDFMetadata(uv_task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.die()
+		uv_task.fail()
 		return
 
 	import os
@@ -35,7 +35,7 @@ def processPDFMetadata(uv_task):
 	if peepdf_raw is None:
 		print "METADATA COULD NOT BE GENERATED"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.die()
+		uv_task.fail()
 		return
 	
 	import re
@@ -49,7 +49,7 @@ def processPDFMetadata(uv_task):
 	if md_file is None or not pdf.addFile(md_file, None, sync=True):
 		print "METADATA COULD NOT BE ADDED"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.die()
+		uv_task.fail()
 		return
 	
 	pdf.addCompletedTask(uv_task.task_path)

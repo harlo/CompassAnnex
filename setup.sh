@@ -15,12 +15,10 @@ source ~/.bash_profile
 echo $PATH
 sleep 2
 
-cd lib/pyner
+cd $THIS_DIR/lib/pyner
 python setup.py install
 
 cd $THIS_DIR
-
-pip install --upgrade fabric
 
 sudo apt-get install -y subversion
 svn checkout http://peepdf.googlecode.com/svn/trunk/ lib/peepdf

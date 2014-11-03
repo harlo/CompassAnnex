@@ -6,7 +6,7 @@ from vars import CELERY_STUB as celery_app
 def startNLPServer(task):
 	task_tag = "NLP CORE SERVER START"
 	print "\n\n************** %s [START] ******************\n" % task_tag
-	task.setStatus(412)
+	task.setStatus(302)
 	
 	from lib.Worker.Models.cp_nlp_server import CompassNLPServer
 	

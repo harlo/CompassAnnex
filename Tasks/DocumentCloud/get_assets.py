@@ -7,7 +7,7 @@ def getAssets(uv_task):
 	task_tag = "FETCHING DOCUMENTCLOUD ASSETS"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "getting DocumentCloud assets for %s" % uv_task.doc_id
-	uv_task.setStatus(412)
+	uv_task.setStatus(302)
 	
 	from lib.Worker.Models.cp_documentcloud_client import CompassDocumentCloudClient
 	from lib.Worker.Models.uv_document import UnveillanceDocument
@@ -18,16 +18,19 @@ def getAssets(uv_task):
 	if document is None:
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		print "Document is None"
+		uv_task.fail()
 		return
 	
 	if not hasattr(document, "dc_id"):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		print "Document has not document cloud id!"
+		uv_task.fail()
 		return
 	
 	if not hasattr(uv_task, "auth_string"):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		print "DocumentCloud upload needs an auth string"
+		uv_task.fail()
 		return
 		
 	dc_client = CompassDocumentCloudClient(auth_string=uv_task.auth_string)	
@@ -36,6 +39,7 @@ def getAssets(uv_task):
 	if dc_manifest is None:
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		print "No DocumentCloud manifest yet for %s." % document._id
+		uv_task.fail()
 		return
 	
 	document.addAsset(dc_manifest, "document_cloud_manifest.json", as_literal=False,

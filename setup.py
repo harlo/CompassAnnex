@@ -1,4 +1,4 @@
-import os
+import os, json
 from fabric.operations import prompt
 from fabric.api import local, settings
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 	with open(os.path.join(conf_dir, "annex.config.yaml"), 'ab') as CONF:
 		CONF.write("vars_extras: %s\n" % os.path.join(base_dir, "vars.json"))
 		CONF.write("nlp_server.path: %s\n" % os.path.join(
-			base_dir, "lib", "starnford-corenlp"))
+			base_dir, "lib", "stanford-corenlp"))
 		CONF.write("nlp_server.port: %d\n" % config['nlp_port'])
 		CONF.write("nlp_server.pkg: %s\n" % config['nlp_pkg'])
 		CONF.write("nlp_ner_base: %s\n" % os.path.join(base_dir, "lib", "stanford-ner-2014-06-16"))
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 		CONF.write("documentcloud.proj_title: Compass v1\n")
 		CONF.write("compass.gensim.training_data: %s\n" % gensim_lib)
 
-	ititial_tasks = []
+	initial_tasks = []
 
 	try:
 		with open(os.path.join(conf_dir, "initial_tasks.json"), 'rb') as I_TASKS:

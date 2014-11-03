@@ -9,7 +9,7 @@ def OCRPDF(task):
 	task_tag = "PDF OCR-TO-TEXT"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "OCRing text from pdf at %s" % task.doc_id
-	task.setStatus(412)
+	task.setStatus(302)
 
 	from lib.Worker.Models.cp_pdf import CompassPDF
 
@@ -20,7 +20,7 @@ def OCRPDF(task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	"""
@@ -36,7 +36,7 @@ def OCRPDF(task):
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	lower_bound = 0
