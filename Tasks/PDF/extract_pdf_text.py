@@ -20,7 +20,7 @@ def extractPDFText(task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	"""

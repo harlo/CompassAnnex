@@ -19,7 +19,7 @@ def splitPDFPages(task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	from PyPDF2 import PdfFileWriter
@@ -32,7 +32,7 @@ def splitPDFPages(task):
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	# get num pages

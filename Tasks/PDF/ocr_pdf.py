@@ -20,7 +20,7 @@ def OCRPDF(task):
 	if pdf is None:
 		print "PDF IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	"""
@@ -36,7 +36,7 @@ def OCRPDF(task):
 	if pdf_reader is None:
 		print "PDF READER IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	lower_bound = 0

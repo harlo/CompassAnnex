@@ -15,9 +15,8 @@ def buildGensimDictionary(uv_task):
 	dictionary_dir = getConfig('compass.gensim.training_data')
 	wiki_bow_corpus = os.path.join(dictionary_dir, "wiki_en_bow.mm")
 	wiki_dict = os.path.join(dictionary_dir, "wiki_en_wordids.txt")
-	wiki_tfidf = os.path.join(dictionary_dir, "wiki_en_tfidf.mm.bz2")
+	wiki_tfidf = os.path.join(dictionary_dir, "wiki_en_tfidf.mm")
 
-	'''
 	for required in [wiki_dict, wiki_bow_corpus, wiki_tfidf]:
 		if not os.path.exists(required):
 			print "\n\n************** %s [WARNING] ******************\n" % task_tag
@@ -40,14 +39,14 @@ def buildGensimDictionary(uv_task):
 					os.path.join(dictionary_dir, "wiki_en")))
 
 			print "WIKI CORPUS SAVED AND SERIALIZED."
-			
-			with settings(warn_only=True):
-				local("bzip2 %s" % os.path.join(dictionary_dir, "wiki_en_tfidf.mm"))
-
 			break
 
-		print "Found required gensim asset %s" % required
-	'''
+		else:
+			print "Found required gensim asset %s" % required
+
+		if not os.path.exists("%s.bz2" % wiki_tfidf):
+			with settings(warn_only=True):
+				local("bzip2 %s" % os.path.join(dictionary_dir, "wiki_en_tfidf.mm"))
 
 	uv_task.finish()
 	print "\n\n************** %s [END] ******************\n" % task_tag

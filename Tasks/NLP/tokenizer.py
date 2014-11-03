@@ -18,6 +18,7 @@ def basicTokenizer(task):
 	if doc is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 
 	txt = None
@@ -36,6 +37,7 @@ def basicTokenizer(task):
 	if txt is None:
 		print "TEXT FILE IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 		
 	from lib.Worker.Models.cp_nlp_server import CompassNLPServer
@@ -48,6 +50,7 @@ def basicTokenizer(task):
 	if tokenized is None:
 		print "COULD NOT TOKENIZE."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	if DEBUG:
@@ -61,6 +64,7 @@ def basicTokenizer(task):
 	if asset_path is None or not doc.addFile(asset_path, None, sync=True): 
 		print "COULD NOT SAVE ASSET."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
 		return
 	
 	doc.addCompletedTask(task.task_path)

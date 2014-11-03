@@ -7,12 +7,16 @@ def mapSimilaritiesGensim(uv_task):
 	task_tag = "CLUSTER: GENSIM SIMILARITIES"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 
+	uv_task.setStatus(302)
+
 	for required in ["documents", "query"]:
 		if not hasattr(uv_task, required):
 			print "Cluster unavailable."
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			uv_task.fail()
 			return
 
+	#uv_task.daemonize()
 	import json, re, os, logging, bz2
 	from gensim import corpora, models
 
@@ -21,35 +25,12 @@ def mapSimilaritiesGensim(uv_task):
 	from conf import DEBUG, ANNEX_DIR, getConfig
 	from vars import ASSET_TAGS
 
-	#uv_task.daemonize()
-	uv_task.setStatus(302)
-
 	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-	for i, d in enumerate(uv_task.documents):
-		d = UnveillanceDocument(_id=d)
-		is_valid = True
-
-		for f in ["%s.mm", "%s.dict"]:
-			if not d.getFile(os.path.join(d.base_path, f % d.file_name)):
-				is_valid = False
-				break
-
-		if is_valid:
-			wiki_dictionary = corpora.Dictionary.load(
-				os.path.join(ANNEX_DIR, d.base_path, "%s.dict" % d.file_name))
-
-			wiki_corpus = corpora.MmCorpus(
-				os.path.join(ANNEX_DIR, d.base_path, "%s.mm" % d.file_name))
-
-			break
-
-	'''
 	wiki_dictionary = corpora.Dictionary.load_from_text(
 		os.path.join(getConfig('compass.gensim.training_data'), "wiki_en_wordids.txt"))
 	wiki_corpus = corpora.MmCorpus(bz2.BZ2File(
 		os.path.join(getConfig('compass.gensim.training_data'), "wiki_en_tfidf.mm.bz2")))
-	'''
 
 	logent_transformation = models.LogEntropyModel(wiki_corpus, id2word=wiki_dictionary)
 	tokenize_function = corpora.wikicorpus.tokenize
@@ -129,7 +110,7 @@ def mapSimilaritiesGensim(uv_task):
 		if len(document_map['map']) == 0:
 			print "no document groups created"
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
-			#uv_task.die()
+			uv_task.fail()
 			return
 
 	# make a corpus out of the concerned pages
@@ -168,7 +149,7 @@ def mapSimilaritiesGensim(uv_task):
 	if not uv_task.addAsset(document_map, "gensim_similarity_output.json", as_literal=False):
 		print "could not save result asset to this task."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		#uv_task.die()
+		uv_task.fail()
 		return
 
 	print "\n\n************** %s [END] ******************\n" % task_tag

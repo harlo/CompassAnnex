@@ -20,7 +20,7 @@ def extractNEREntities(task):
 	if doc is None:
 		print "DOC IS NONE"
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	from json import loads
@@ -30,7 +30,7 @@ def extractNEREntities(task):
 	except Exception as e:
 		print "ERROR GETTING DOC-TEXTS: %s" % e
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		task.die()
+		task.fail()
 		return
 
 	import ner, os

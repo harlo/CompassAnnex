@@ -17,11 +17,13 @@ def uploadDocument(uv_task):
 	if document is None:
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		print "Document is None"
+		uv_task.fail()
 		return
 	
 	if not hasattr(uv_task, "auth_string"):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		print "DocumentCloud upload needs an auth string"
+		uv_task.fail()
 		return
 		
 	dc_client = CompassDocumentCloudClient(auth_string=uv_task.auth_string)	
@@ -31,6 +33,7 @@ def uploadDocument(uv_task):
 	if upload is None:
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		print "DocumentCloud upload needs an auth string"
+		uv_task.fail()
 		return
 		
 	document.dc_id = upload['id']
