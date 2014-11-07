@@ -13,7 +13,8 @@
 		"CP_TOPICS" : "compass_topic_model_document",
 		"GM_D" : "gensim_dict",
 		"GM_MM" : "gensim_corpus_mm",
-		"GM_LSI" : "gensim_lsi_model"
+		"GM_LSI" : "gensim_lsi_model",
+		"GM_TOPICS" : "gensim_lsi_topics"
 	},
 	"ELASTICSEARCH_MAPPING_STUBS": {
 		"cp_page_text" : {

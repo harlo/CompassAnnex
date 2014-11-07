@@ -71,7 +71,7 @@ def createGensimObjects(task):
 
 	tokenize_function = corpora.wikicorpus.tokenize
 
-	doc_corpus = [wiki_dictionary.doc2bow(tokenize_function(cleanLine(page).lower().split()) for page in texts])
+	doc_corpus = [wiki_dictionary.doc2bow(tokenize_function(cleanLine(page).lower())) for page in texts]
 	doc_corpus = logent_transformation[doc_corpus]
 
 	wiki_tfidf_file = os.path.join(getConfig('compass.gensim.training_data'), 'wiki_en_tfidf.tfidf_model')
@@ -88,11 +88,16 @@ def createGensimObjects(task):
 
 	num_topics = 300
 	lsi = models.LsiModel(corpus=doc_tfidf, id2word=wiki_dictionary, num_topics=num_topics)
+
+	lsi_topics = [str(topic) for topic in lsi.print_topics()]	
+	topic_path = doc.addAsset(lsi_topics, "%s_topics.json" % doc.file_name, as_literal=False,
+		description="Gensim Topics dump (from LSI Model)", tags=[ASSET_TAGS["GM_TOPICS"]])
+
 	doc_lsi = lsi[doc_tfidf]
 
 	if DEBUG:
 		print "HERE ARE GENSIM'S LSI TOPICS (num_topics=%d)" % num_topics
-		print doc_lsi.print_topics()
+		print lsi_topics
 
 	lsi_path = doc.addAsset(None, "%s_model.lsi" % doc.file_name,
 		description="Gensim LSI Model", tags=[ASSET_TAGS["GM_LSI"]])
