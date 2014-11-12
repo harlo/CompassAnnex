@@ -57,14 +57,13 @@
 	"MIME_TYPE_MAP" : {},
 	"MIME_TYPE_TASKS" : {
 		"application/pdf" : [
-			"PDF.process_metadata.processPDFMetadata", 
 			"PDF.split_pdf_pages.splitPDFPages",
 			"PDF.extract_pdf_text.extractPDFText",
 			"Text.preprocess_nlp.preprocessNLP",
 			"NLP.page_map.generatePageMap",
 			"NLP.topic_modeler.createGensimObjects",
 			"NLP.ner_entity_extractor.extractNEREntities",
-			"NLP.address_parser.addressParser"
+			"PDF.process_metadata.processPDFMetadata"
 		],
 		"text/plain" : [
 			"Text.evaluate_text.evaluateText",
@@ -72,7 +71,7 @@
 			"NLP.page_map.generatePageMap",
 			"NLP.topic_modeler.createGensimObjects",
 			"NLP.ner_entity_extractor.extractNEREntities",
-			"NLP.address_parser.addressParser"
+			"PDF.process_metadata.processPDFMetadata"
 		]
 	},
 	"METADATA_ASPECTS" : {
