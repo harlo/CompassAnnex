@@ -6,7 +6,7 @@
 	
 	`git submodule update --init --recursive`
 
-1.	Run `./setup.sh` or pre-configure the Frontend with a .json config file (see **Configure** for more info) with `./setup.sh /path/to/config.json`.
+1.	Run `./setup.sh` or pre-configure the Annex with a .json config file (see **Configure** for more info) with `./setup.sh /path/to/config.json`.
 1.	Follow the prompts.
 
 ## Configure
