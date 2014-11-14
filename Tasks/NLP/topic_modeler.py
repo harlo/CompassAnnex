@@ -33,6 +33,12 @@ def createGensimObjects(task):
 		task.fail()
 		return
 
+	if len(texts) == 0:
+		print "THERE ARE NO TEXTS HERE ANYWAY!"
+		print "\n\n************** %s [ERROR] ******************\n" % task_tag
+		task.fail()
+		return 
+
 	import logging, os, bz2
 	from json import loads
 	from gensim import corpora

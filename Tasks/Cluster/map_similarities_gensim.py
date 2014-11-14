@@ -162,18 +162,22 @@ def mapSimilaritiesGensim(uv_task):
 							page_item['topic_comprehension'] = topics
 							del page_item['index_in_corpus']
 
-							print "FOUND PAGE ITEM FOR %d at %d" % (i, p)
 							break
 
-					except Exception as e: continue
+					except Exception as e:
+						continue
 
-				if page_item_index != -1: break
+				if page_item_index != -1:
+					break
 
-			
-		document_map['topics'] = lsi.show_topics()
+		document_map['topics'] = [str(topic) for topic in lsi.show_topics()]
+		if DEBUG:
+			print document_map['topics']
 
 	# save massaged data to task outupt
-	if not uv_task.addAsset(document_map, "gensim_similarity_output.json", as_literal=False):
+	if not uv_task.addAsset(document_map, "gensim_similarity_output.json", 
+		as_literal=False, tags=[ASSET_TAGS['C_RES']]):
+		
 		print "could not save result asset to this task."
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		uv_task.fail()
