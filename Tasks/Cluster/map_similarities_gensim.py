@@ -16,7 +16,6 @@ def mapSimilaritiesGensim(uv_task):
 			uv_task.fail()
 			return
 
-	#uv_task.daemonize()
 	import json, re, os, logging, bz2
 	from gensim import corpora, models
 

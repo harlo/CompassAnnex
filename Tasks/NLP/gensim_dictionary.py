@@ -21,7 +21,6 @@ def buildGensimDictionary(uv_task):
 		if not os.path.exists(required):
 			print "\n\n************** %s [WARNING] ******************\n" % task_tag
 			print "THIS COULD TAKE AWHILE (LIKE, 10+ HOURS)..."
-			uv_task.daemonize()
 
 			from fabric.api import settings, local
 			os.chdir(dictionary_dir)

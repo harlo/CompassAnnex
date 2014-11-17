@@ -3,9 +3,7 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def OCRPDF(task):
-	task.daemonize()
-	
+def OCRPDF(task):	
 	task_tag = "PDF OCR-TO-TEXT"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "OCRing text from pdf at %s" % task.doc_id

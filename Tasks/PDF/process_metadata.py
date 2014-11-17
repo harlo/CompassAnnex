@@ -4,8 +4,6 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def processPDFMetadata(uv_task):
-	uv_task.daemonize()
-
 	task_tag = "PDF METADATA EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "extracting text from pdf at %s" % uv_task.doc_id

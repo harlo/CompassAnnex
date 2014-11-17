@@ -4,8 +4,6 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def addressParser(task):
-	task.daemonize()
-
 	task_tag = "NLP ADDRESS PARSER"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "EXTRACTING ADDRESSES FROM TEXT DOCUMENT at %s" % task.doc_id

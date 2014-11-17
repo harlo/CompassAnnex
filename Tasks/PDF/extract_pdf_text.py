@@ -3,9 +3,7 @@ from __future__ import absolute_import
 from vars import CELERY_STUB as celery_app
 
 @celery_app.task
-def extractPDFText(task):
-	task.daemonize()
-	
+def extractPDFText(task):	
 	task_tag = "PDF TEXT EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "extracting text from pdf at %s" % task.doc_id

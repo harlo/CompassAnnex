@@ -4,8 +4,6 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def createGensimObjects(task):
-	#task.daemonize()
-
 	task_tag = "GENSIM TOPIC EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "USING TEXT DOCUMENT at %s" % task.doc_id

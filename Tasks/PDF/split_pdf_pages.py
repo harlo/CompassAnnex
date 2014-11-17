@@ -4,8 +4,6 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def splitPDFPages(task):
-	task.daemonize()
-
 	task_tag = "SPLITTING PDF PAGES"
 
 	print "\n\n************** %s [START] ******************\n" % task_tag

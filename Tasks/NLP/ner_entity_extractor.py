@@ -4,8 +4,6 @@ from vars import CELERY_STUB as celery_app
 
 @celery_app.task
 def extractNEREntities(task):
-	task.daemonize()
-
 	task_tag = "NER ENTITY EXTRACTION"
 	print "\n\n************** %s [START] ******************\n" % task_tag
 	print "TOKENIZING TEXT DOCUMENT at %s" % task.doc_id
