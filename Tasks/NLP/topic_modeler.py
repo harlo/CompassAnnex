@@ -90,31 +90,29 @@ def createGensimObjects(task):
 
 	doc_tfidf = wiki_tfidf[doc_corpus]
 
-	num_topics = 300
+	num_topics = 50
 	lsi = models.LsiModel(corpus=doc_tfidf, id2word=wiki_dictionary, num_topics=num_topics)
 
-	lsi_topics = [str(topic) for topic in lsi.print_topics()]	
-	topic_path = doc.addAsset(lsi_topics, "%s_topics.json" % doc.file_name, as_literal=False,
-		description="Gensim Topics dump (from LSI Model)", tags=[ASSET_TAGS["GM_TOPICS"]])
+	topics = []
+	for t_group in [t.split("+") for t in [str(topic) for topic in lsi.print_topics(num_topics)]]:
+		topics.append([t.strip().replace('\"','').split("*") for t in t_group])
+
+	lsi_topics = {
+		"topics" : topics,
+		"doc_comprehension" : []
+	}
 
 	doc_lsi = lsi[doc_tfidf]
+
+	for d in doc_lsi:
+		lsi_topics['doc_comprehension'].append(d)
 
 	if DEBUG:
 		print "HERE ARE GENSIM'S LSI TOPICS (num_topics=%d)" % num_topics
 		print lsi_topics
 
-	lsi_path = doc.addAsset(None, "%s_model.lsi" % doc.file_name,
-		description="Gensim LSI Model", tags=[ASSET_TAGS["GM_LSI"]])
-
-	if lsi_path is not None:
-		try:
-			doc.getFile(os.path.join(ANNEX_DIR, lsi_path))
-		except Exception as e:
-			print "\n\n************** %s [WARN] ******************\n" % task_tag
-			print e
-
-		doc_lsi.save(os.path.join(ANNEX_DIR, lsi_path))
-		doc.addFile(lsi_path, None, sync=True)
+	topic_path = doc.addAsset(lsi_topics, "%s_topics.json" % doc.file_name, as_literal=False,
+		description="Gensim Topics dump (from LSI Model)", tags=[ASSET_TAGS["GM_TOPICS"]])
 
 	doc.addCompletedTask(task.task_path)
 	task.routeNext()
