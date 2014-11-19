@@ -61,7 +61,9 @@ def mapSimilaritiesGensim(uv_task):
 	}
 
 	query_rx = re.compile(r'.*%s.*' % "|".join(uv_task.query))
-	for document in [UnveillanceDocument(_id=d) for d in uv_task.documents]:
+	for doc_idx, document in enumerate([UnveillanceDocument(_id=d) for d in uv_task.documents]):
+		uv_task.communicate(message="Processing %s (%d out of %d)" % (
+			document.file_alias, doc_idx, len(uv_task.documents)))
 		concerned_pages = []
 
 		try:
@@ -126,13 +128,15 @@ def mapSimilaritiesGensim(uv_task):
 			document_map['map'].append(doc_map)
 
 		if len(document_map['map']) == 0:
-			print "no document groups created"
+			error_msg = "no document groups created"
+			print error_msg
 			print "\n\n************** %s [ERROR] ******************\n" % task_tag
-			uv_task.fail()
+			uv_task.fail(message=error_msg)
 			return
 
 	# make a corpus out of the concerned pages
 	if len(cluster_corpus) > 0:
+		uv_task.communicate(message="Building topic model...")
 		cluster_corpus = logent_transformation[cluster_corpus]
 
 		wiki_tfidf_file = os.path.join(getConfig('compass.gensim.training_data'), 'wiki_en_tfidf.tfidf_model')
@@ -181,11 +185,11 @@ def mapSimilaritiesGensim(uv_task):
 	if not uv_task.addAsset(document_map, "gensim_similarity_output.json", 
 		as_literal=False, tags=[ASSET_TAGS['C_RES']]):
 		
-		print "could not save result asset to this task."
+		error_msg = "could not save result asset to this task."
+		print error_msg
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.fail()
+		uv_task.fail(message=error_msg)
 		return
 
 	print "\n\n************** %s [END] ******************\n" % task_tag
-	#uv_task.save(built=True)
 	uv_task.finish()
