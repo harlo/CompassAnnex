@@ -56,7 +56,8 @@ def mapSimilaritiesGensim(uv_task):
 	cluster_corpus = []
 	document_map = {
 		'query' : uv_task.query,
-		'map' : []
+		'map' : [],
+		'topics' : []
 	}
 
 	query_rx = re.compile(r'.*%s.*' % "|".join(uv_task.query))
@@ -169,7 +170,10 @@ def mapSimilaritiesGensim(uv_task):
 				if page_item_index != -1:
 					break
 
-		document_map['topics'] = [str(topic) for topic in lsi.show_topics()]
+		t_lambda = lambda x : [float(x[0]), x[1]]
+		for t_group in [t.split("+") for t in [str(topic) for topic in lsi.print_topics(len(cluster_corpus))]]:
+			document_map['topics'].append([t_lambda(t.strip().replace('\"', '').split("*")) for t in t_group])
+
 		if DEBUG:
 			print document_map['topics']
 

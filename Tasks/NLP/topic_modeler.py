@@ -94,8 +94,9 @@ def createGensimObjects(task):
 	lsi = models.LsiModel(corpus=doc_tfidf, id2word=wiki_dictionary, num_topics=num_topics)
 
 	topics = []
+	t_lambda = lambda x : [float(x[0]), x[1]]
 	for t_group in [t.split("+") for t in [str(topic) for topic in lsi.print_topics(num_topics)]]:
-		topics.append([t.strip().replace('\"','').split("*") for t in t_group])
+		topics.append([t_lambda(t.strip().replace('\"','').split("*")) for t in t_group])
 
 	lsi_topics = {
 		"topics" : topics,
@@ -106,10 +107,6 @@ def createGensimObjects(task):
 
 	for d in doc_lsi:
 		lsi_topics['doc_comprehension'].append(d)
-
-	if DEBUG:
-		print "HERE ARE GENSIM'S LSI TOPICS (num_topics=%d)" % num_topics
-		print lsi_topics
 
 	topic_path = doc.addAsset(lsi_topics, "%s_topics.json" % doc.file_name, as_literal=False,
 		description="Gensim Topics dump (from LSI Model)", tags=[ASSET_TAGS["GM_TOPICS"]])
