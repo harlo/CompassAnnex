@@ -62,8 +62,25 @@ def mapSimilaritiesGensim(uv_task):
 
 	query_rx = re.compile(r'.*%s.*' % "|".join(uv_task.query))
 	for doc_idx, document in enumerate([UnveillanceDocument(_id=d) for d in uv_task.documents]):
+
+		doc_valid = True
+		for required in ['_id']:
+			
+			if required not in document.emit().keys():				
+				doc_valid = False
+				break
+
+		if not doc_valid:
+			error_msg = "Document is invalid"
+			print "\n\n************** %s [WARN] ******************\n" % task_tag
+			uv_task.communicate(message=error_msg)
+			print error_msg
+
+			continue
+
+
 		uv_task.communicate(message="Processing %s (%d out of %d)" % (
-			document.file_alias, doc_idx, len(uv_task.documents)))
+			document._id if not hasattr(document, "file_alias") else document.file_alias, doc_idx, len(uv_task.documents)))
 		concerned_pages = []
 
 		try:
