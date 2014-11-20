@@ -90,7 +90,7 @@ def createGensimObjects(task):
 
 	doc_tfidf = wiki_tfidf[doc_corpus]
 
-	num_topics = 50
+	num_topics = 35
 	lsi = models.LsiModel(corpus=doc_tfidf, id2word=wiki_dictionary, num_topics=num_topics)
 
 	topics = []

@@ -151,7 +151,9 @@ def mapSimilaritiesGensim(uv_task):
 
 		cluster_tfidf = wiki_tfidf[cluster_corpus]
 		
-		lsi = models.LsiModel(corpus=cluster_tfidf, id2word=wiki_dictionary, num_topics=len(cluster_corpus))
+		num_topics = 35
+
+		lsi = models.LsiModel(corpus=cluster_tfidf, id2word=wiki_dictionary, num_topics=num_topics)
 		cluster_lsi = lsi[cluster_tfidf]
 
 		# for all of the cluster_lsi objects, each document (a page within a doc, actually) will be rated according to its topic set
@@ -175,7 +177,7 @@ def mapSimilaritiesGensim(uv_task):
 					break
 
 		t_lambda = lambda x : [float(x[0]), x[1]]
-		for t_group in [t.split("+") for t in [str(topic) for topic in lsi.print_topics(len(cluster_corpus))]]:
+		for t_group in [t.split("+") for t in [str(topic) for topic in lsi.print_topics(num_topics)]]:
 			document_map['topics'].append([t_lambda(t.strip().replace('\"', '').split("*")) for t in t_group])
 
 		if DEBUG:
