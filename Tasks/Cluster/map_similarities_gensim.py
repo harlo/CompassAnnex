@@ -194,8 +194,16 @@ def mapSimilaritiesGensim(uv_task):
 					break
 
 		t_lambda = lambda x : [float(x[0]), x[1]]
-		for t_group in [t.split("+") for t in [str(topic) for topic in lsi.print_topics(num_topics)]]:
-			document_map['topics'].append([t_lambda(t.strip().replace('\"', '').split("*")) for t in t_group])
+		try:
+			for t_group in [t.split("+") for t in [str(topic) for topic in lsi.print_topics(num_topics)]]:
+				document_map['topics'].append([t_lambda(t.strip().replace('\"', '').split("*")) for t in t_group])
+		except Exception as e:
+			error_msg = "could not create topic list: %s." % e
+			print error_msg
+			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			uv_task.fail(message=error_msg)
+			return
+
 
 		if DEBUG:
 			print document_map['topics']
