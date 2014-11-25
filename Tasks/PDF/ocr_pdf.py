@@ -47,8 +47,8 @@ def OCRPDF(uv_task):
 
 	for x in xrange(0, num_pages):
 		# pdf page to image
-		with Image(filename=os.path.join(ANNEX_DIR, pdf.base_path, "%s[%d]" % (pdf.file_name, x))) as p_image:
-			p_image.save(tmp_img)
+		with Image(filename=os.path.join(ANNEX_DIR, "%s[%d]" % (pdf.file_name, x))) as p_image:
+			p_image.save(filename=tmp_img)
 			
 			# image to ocr
 			with settings(warn_only=True):
