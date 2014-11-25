@@ -33,6 +33,7 @@ def OCRPDF(uv_task):
 		uv_task.fail()
 		return
 
+	import os
 	from fabric.api import settings, local
 	from wand.image import Image
 	from time import sleep
@@ -41,41 +42,30 @@ def OCRPDF(uv_task):
 	from Models.uv_els_stub import UnveillanceELSStub
 
 	texts = [None] * pdf.total_pages
-	
-	if pdf.hasParts():
-		extractors = pdf.getParts()
-	else:
-		extractors = [pdf.file_name]
-	
 	count = 0
-	for e in extractors:
-		if e == pdf.file_name:
-			pdf_reader = pdf.loadFile(e)
-		else:
-			pdf_reader = pdf.loadAsset(e)
-		try:
-			num_pages = pdf_reader.getNumPages()
-		except AttributeError as e:
-			print e
-			continue
+	tmp_img = os.path.join(ANNEX_DIR, pdf.base_path, "p_image.jpg")
 
-		for x in xrange(0, num_pages):
-			# pdf page to image
+	for x in xrange(0, num_pages):
+		# pdf page to image
+		with Image(filename="%s[%d]" % (pdf.file_name, x)) as p_image:
+			p_image.save(tmp_img)
+			
 			# image to ocr
-			with Image(filename="%s[%d]" % ()) as p_image:
-				p_image.save(os.path.join(ANNEX_DIR, pdf.base_path, "p_image.jpg"))
-				
-				with settings(warn_only=True):
-					text = cleanLine(local("tesseract p_image.jpg -", capture=True))
-					texts[count] = text
+			with settings(warn_only=True):
+				text = cleanLine(local("tesseract p_image.jpg -", capture=True))
+				texts[count] = text
 
-					els_stub = UnveillanceELSStub('cp_page_text', inflate={
-						'media_id' : pdf._id,
-						'searchable_text' : text,
-						'index_in_parent' : count
-					})
+				els_stub = UnveillanceELSStub('cp_page_text', inflate={
+					'media_id' : pdf._id,
+					'searchable_text' : text,
+					'index_in_parent' : count
+				})
 
-			count += 1
+			sleep(1)
+
+		count += 1
+
+	os.remove(tmp_img)
 
 	asset_path = pdf.addAsset(texts, "doc_texts.json", as_literal=False,
 		description="jsonified texts in document; page-by-page, segment-by-segment. unclean. (OCR'd using tesseract)",
