@@ -10,9 +10,7 @@ def OCRPDF(uv_task):
 	task.setStatus(302)
 
 	from lib.Worker.Models.cp_pdf import CompassPDF
-
 	from conf import DEBUG
-	from vars import ASSET_TAGS
 
 	pdf = CompassPDF(_id=uv_task.doc_id)
 	if pdf is None:
@@ -40,6 +38,8 @@ def OCRPDF(uv_task):
 
 	from lib.Core.Utils.funcs import cleanLine
 	from Models.uv_els_stub import UnveillanceELSStub
+	from conf import ANNEX_DIR
+	from vars import ASSET_TAGS
 
 	texts = [None] * pdf.total_pages
 	count = 0
@@ -47,7 +47,7 @@ def OCRPDF(uv_task):
 
 	for x in xrange(0, num_pages):
 		# pdf page to image
-		with Image(filename="%s[%d]" % (pdf.file_name, x)) as p_image:
+		with Image(filename=os.path.join(ANNEX_DIR, pdf.base_path, "%s[%d]" % (pdf.file_name, x))) as p_image:
 			p_image.save(tmp_img)
 			
 			# image to ocr
