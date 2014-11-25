@@ -20,7 +20,7 @@ python setup.py install
 
 cd $THIS_DIR
 
-sudo apt-get install -y subversion
+sudo apt-get install -y subversion tesseract-ocr
 svn checkout http://peepdf.googlecode.com/svn/trunk/ lib/peepdf
 
 python setup.py
