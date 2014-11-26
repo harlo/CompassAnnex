@@ -42,7 +42,7 @@ def get_documentcloud_ocr(uv_task):
 
 	import os, requests
 	
-	from lib.Core.Utils.funcs import cleanLine
+	from lib.Core.Utils.funcs import cleanLine, generateMD5Hash
 	from Models.uv_els_stub import UnveillanceELSStub
 	from conf import ANNEX_DIR
 	from vars import ASSET_TAGS
@@ -68,6 +68,13 @@ def get_documentcloud_ocr(uv_task):
 			print "no text at page %d" % x
 		else:
 			texts[count] = r.content
+
+			els_stub = UnveillanceELSStub('cp_page_text', inflate={
+				'media_id' : pdf._id,
+				'searchable_text' : texts[count],
+				'index_in_parent' : count,
+				'_id' : generateMD5Hash(content=pdf._id, salt=str(count))
+			})
 
 		if texts[count] is None or len(texts[count]) == 0:
 			print "\n\n************** %s [WARN] ******************\n" % task_tag

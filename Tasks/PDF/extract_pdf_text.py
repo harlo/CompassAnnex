@@ -41,9 +41,6 @@ def extractPDFText(uv_task):
 		extractors = [pdf.file_name]
 	
 	count = 0
-	tmp_img = str(os.path.join(ANNEX_DIR, pdf.base_path, "p_image.jpg"))
-	print "IF OCR NEEDED, TMP IMAGE AT %s" % tmp_img
-
 	for e in extractors:
 		if e == pdf.file_name:
 			pdf_reader = pdf.loadFile(e)
@@ -56,22 +53,7 @@ def extractPDFText(uv_task):
 			continue
 
 		for x in xrange(0, num_pages):
-			text = pdf_reader.getPage(x).extractText()
-			if len(text) == 0:
-				p_image_path = str(os.path.join(ANNEX_DIR, "%s[%d]" % (pdf.file_name, count)))
-
-				if DEBUG:
-					print "NO TEXT EXTRACTED FROM PAGE %d; TRYING OCR on %s" % (count, p_image_path)
-
-				# pdf page to image
-				with Image(filename=p_image_path) as p_image:
-					p_image.save(filename=tmp_img)
-					
-					# image to ocr
-					with settings(warn_only=True):
-						text = local("tesseract %s -" % tmp_img, capture=True)			
-
-			text = cleanLine(text)
+			text = cleanLine(pdf_reader.getPage(x).extractText())
 			texts[count] = text
 
 			els_stub = UnveillanceELSStub('cp_page_text', inflate={
@@ -91,8 +73,6 @@ def extractPDFText(uv_task):
 		pdf.save()
 
 	del texts
-	if os.path.exists(tmp_img):
-		os.remove(tmp_img)
 
 	pdf.addCompletedTask(uv_task.task_path)
 	uv_task.routeNext(inflate={ 'text_file' : asset_path })
