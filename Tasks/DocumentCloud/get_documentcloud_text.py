@@ -55,7 +55,7 @@ def get_documentcloud_ocr(uv_task):
 		'd' : "-".join(uv_task.documentcloud_id.split('-')[1:])
 	}
 
-	for x in xrange(0, num_pages):
+	for x in xrange(0, pdf.total_pages):
 		req_map['x'] = x
 		req = "https://%(a)s@www.documentcloud.org/documents/%(s)s/pages/%(d)s-p%(x)d.txt" % (req_map)
 	
@@ -68,6 +68,11 @@ def get_documentcloud_ocr(uv_task):
 			print "no text at page %d" % x
 		else:
 			texts[count] = r.content
+
+		if texts[count] is None or len(texts[count]) == 0:
+			print "\n\n************** %s [WARN] ******************\n" % task_tag
+			print "no text at page %d (%s)" % (x, type(texts[count]))
+			texts[count] = ""
 
 		count += 1
 
