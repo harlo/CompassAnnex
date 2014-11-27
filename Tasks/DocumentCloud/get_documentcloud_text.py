@@ -9,13 +9,6 @@ def get_documentcloud_ocr(uv_task):
 	print "OCRing text via documentcloud from pdf at %s" % uv_task.doc_id
 	uv_task.setStatus(302)
 
-	if not hasattr(uv_task, "documentcloud_id"):
-		error_msg = "DOCUMENTCLOUD ID NEEDED"
-		print error_msg
-		print "\n\n************** %s [ERROR] ******************\n" % task_tag
-		uv_task.fail(status=412, message=error_msg)
-		return
-
 	if not hasattr(uv_task, "documentcloud_auth"):
 		error_msg = "DOCUMENTCLOUD AUTH STRING NEEDED"
 		print error_msg
@@ -39,6 +32,18 @@ def get_documentcloud_ocr(uv_task):
 		print "\n\n************** %s [ERROR] ******************\n" % task_tag
 		uv_task.fail()
 		return
+
+	if not hasattr(uv_task, "documentcloud_id"):
+		try:
+			uv_task.documentcloud_id = pdf.file_alias.replace(".pdf", "")
+
+			print "DOCUMENTCLOUD ID NOT PASSED. GUESSING AT IT WITH %s" % uv_task.documentcloud_id
+			print "\n\n************** %s [WARN] ******************\n" % task_tag
+		except Exception as e:
+			print "COULD NOT GET DOCUMENTCLOUD ID FOR %s" % pdf.file_name
+			print e
+			print "\n\n************** %s [ERROR] ******************\n" % task_tag
+			return
 
 	import os, requests
 	
