@@ -20,7 +20,7 @@ python setup.py install
 
 cd $THIS_DIR
 
-sudo apt-get install -y subversion libmagickwand-dev tesseract-ocr
+sudo apt-get install -y subversion libmagickwand-dev tesseract-ocr gfortran libopenblas-dev liblapack-dev
 svn checkout http://peepdf.googlecode.com/svn/trunk/ lib/peepdf
 
 python setup.py
